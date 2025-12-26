@@ -3,40 +3,9 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { PanelLeft, PanelRight } from 'lucide-react';
-import { useMediaQuery } from '@/hooks/use-mobile';
+
 import { cn } from '@/lib/utils';
 import { Button, type ButtonProps } from '@/components/ui/button';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
-
-const SIDEBAR_WIDTH = '20rem';
-const MOBILE_BREAKPOINT = 'md';
-
-type SidebarContextValue = {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-  isMobile: boolean;
-};
-
-const SidebarContext = React.createContext<SidebarContextValue | null>(null);
-
-function useSidebar() {
-  const context = React.useContext(SidebarContext);
-  if (!context) {
-    throw new Error('useSidebar must be used within a SidebarProvider');
-  }
-  return context;
-}
-
-const SidebarProvider = ({ children }: { children: React.ReactNode }) => {
-  const isMobile = useMediaQuery(`(max-width: 768px)`);
-  const [isOpen, setIsOpen] = React.useState(false);
-
-  return (
-    <SidebarContext.Provider value={{ isOpen, setIsOpen, isMobile }}>
-      {children}
-    </SidebarContext.Provider>
-  );
-};
 
 const sidebarVariants = cva('bg-card text-card-foreground transition-all', {
   variants: {
@@ -52,42 +21,21 @@ const sidebarVariants = cva('bg-card text-card-foreground transition-all', {
 
 interface SidebarProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof sidebarVariants> {}
-
-const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
-  ({ side = 'left', className, children, ...props }, ref) => {
-    const { isMobile, isOpen, setIsOpen } = useSidebar();
-    
-    // Logic specific to which sidebar this is
-    const whichSidebar = `is${side.charAt(0).toUpperCase() + side.slice(1)}Open`;
-    const openState = React.useState(false);
-    const currentIsOpen = (useSidebar() as any)[whichSidebar];
-    const setCurentIsOpen = (useSidebar() as any)[`set${side.charAt(0).toUpperCase() + side.slice(1)}Open`];
-
-    if (isMobile) {
-      return (
-        <Sheet open={currentIsOpen} onOpenChange={setCurentIsOpen}>
-          <SheetContent
-            side={side}
-            className={cn('w-[var(--sidebar-width)] p-0', className)}
-            style={{ '--sidebar-width': SIDEBAR_WIDTH } as React.CSSProperties}
-            {...props}
-          >
-            {children}
-          </SheetContent>
-        </Sheet>
-      );
+    VariantProps<typeof sidebarVariants> {
+        width?: string;
     }
 
+const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
+  ({ side = 'left', className, width = '20rem', children, ...props }, ref) => {
     return (
       <aside
         ref={ref}
         className={cn(
-          'w-[var(--sidebar-width)] hidden md:flex flex-col',
+          'w-[var(--sidebar-width)]',
           sidebarVariants({ side }),
           className
         )}
-        style={{ '--sidebar-width': SIDEBAR_WIDTH } as React.CSSProperties}
+        style={{ '--sidebar-width': width } as React.CSSProperties}
         {...props}
       >
         {children}
@@ -104,13 +52,6 @@ interface SidebarTriggerProps extends ButtonProps {
 
 const SidebarTrigger = React.forwardRef<HTMLButtonElement, SidebarTriggerProps>(
     ({ side, className, ...props }, ref) => {
-        const { isMobile, setIsOpen } = useSidebar();
-        
-        // This is a bit of a hack to get the correct context for each sidebar
-        const setCurentIsOpen = (useSidebar() as any)[`set${side.charAt(0).toUpperCase() + side.slice(1)}Open`];
-
-        if (!isMobile) return null;
-
         const Icon = side === 'left' ? PanelLeft : PanelRight;
 
         return (
@@ -119,7 +60,6 @@ const SidebarTrigger = React.forwardRef<HTMLButtonElement, SidebarTriggerProps>(
                 variant="ghost"
                 size="icon"
                 className={cn('md:hidden', className)}
-                onClick={() => setCurentIsOpen(true)}
                 {...props}
             >
                 <Icon className="h-5 w-5" />
@@ -172,33 +112,10 @@ const SidebarFooter = React.forwardRef<
 });
 SidebarFooter.displayName = 'SidebarFooter';
 
-// A new provider that manages state for both sidebars
-const FullSidebarProvider = ({ children }: { children: React.ReactNode }) => {
-    const isMobile = useMediaQuery(`(max-width: 768px)`);
-    const [isLeftOpen, setLeftOpen] = React.useState(false);
-    const [isRightOpen, setRightOpen] = React.useState(false);
-
-    const value = {
-        isMobile,
-        isLeftOpen,
-        setLeftOpen,
-        isRightOpen,
-        setRightOpen,
-    }
-
-    return (
-        <SidebarContext.Provider value={value as any}>
-            {children}
-        </SidebarContext.Provider>
-    )
-}
-
 export {
-  FullSidebarProvider as SidebarProvider,
   Sidebar,
   SidebarTrigger,
   SidebarHeader,
   SidebarContent,
   SidebarFooter,
-  useSidebar,
 };

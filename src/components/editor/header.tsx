@@ -11,10 +11,10 @@ import { Logo } from '../icons/logo';
 import { SidebarTrigger } from '../ui/sidebar';
 
 interface HeaderProps {
-  clips: Clip[];
+  clips?: Clip[]; // Make clips optional
 }
 
-export default function Header({ clips }: HeaderProps) {
+export default function Header({ clips = [] }: HeaderProps) {
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
@@ -39,7 +39,7 @@ export default function Header({ clips }: HeaderProps) {
       a.href = url;
       a.download = `motionspeak-export-${Date.now()}.mp4`;
       document.body.appendChild(a);
-a.click();
+      a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       toast({

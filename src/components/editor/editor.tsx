@@ -10,15 +10,15 @@ import TextEditor from './text-editor';
 import {
   Wand2,
   Upload,
-  Plus,
   Text,
+  Plus,
 } from 'lucide-react';
 import { Button } from '../ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import AiTools from './ai-tools';
 import UploadPanel from './upload-panel';
 import PropertiesPanel from './properties-panel';
-import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from '../ui/sidebar';
+import { Sidebar, SidebarContent, SidebarTrigger } from '../ui/sidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 
@@ -157,6 +157,9 @@ export default function Editor() {
             fontFamily: 'Inter, sans-serif',
             textAlign: 'center',
             position: { x: 0.5, y: 0.5 }, // Center of the screen
+            textShadow: { color: '#000000', blur: 4, offsetX: 2, offsetY: 2 },
+            textOutline: { color: '#000000', width: 2 },
+            textBackground: { color: '#00000080', padding: 10, borderRadius: 10 },
         };
         const addedClip = handleAddClip(newClip);
         setSelectedClip(addedClip);
@@ -179,34 +182,46 @@ export default function Editor() {
     // We don't null out selected clip so the properties panel stays populated
   }
 
+  const LeftSidebarContent = () => (
+    <Tabs defaultValue="ai" className="h-full flex flex-col">
+        <TabsList className="w-full justify-around rounded-none">
+            <TabsTrigger value="ai" className="flex-1 rounded-none"><Wand2 /> AI</TabsTrigger>
+            <TabsTrigger value="upload" className="flex-1 rounded-none"><Upload /> Media</TabsTrigger>
+            <TabsTrigger value="text" className="flex-1 rounded-none"><Text /> Text</TabsTrigger>
+        </TabsList>
+        <TabsContent value="ai" className="flex-1 overflow-y-auto">
+            <AiTools onAddClip={handleAddClip} />
+        </TabsContent>
+        <TabsContent value="upload" className="flex-1 overflow-y-auto">
+            <UploadPanel onAddClip={handleAddClip}/>
+        </TabsContent>
+        <TabsContent value="text" className="flex-1 overflow-y-auto p-4">
+            <Button onClick={openTextEditor} className="w-full">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Text
+            </Button>
+        </TabsContent>
+    </Tabs>
+  );
+
   return (
-    <SidebarProvider>
-      <div className="flex h-screen w-full flex-col bg-background text-foreground">
-        <Header clips={clips}/>
+    <div className="flex h-screen w-full flex-col bg-background text-foreground">
+        <Header />
         <main className="flex-1 flex overflow-hidden">
-          <Sidebar side="left">
-            <SidebarContent className="p-0">
-              <Tabs defaultValue="ai" className="h-full flex flex-col">
-                <TabsList className="w-full justify-around rounded-none">
-                  <TabsTrigger value="ai" className="flex-1 rounded-none"><Wand2 /> AI</TabsTrigger>
-                  <TabsTrigger value="upload" className="flex-1 rounded-none"><Upload /> Media</TabsTrigger>
-                  <TabsTrigger value="text" className="flex-1 rounded-none"><Text /> Text</TabsTrigger>
-                </TabsList>
-                <TabsContent value="ai" className="flex-1 overflow-y-auto">
-                    <AiTools onAddClip={handleAddClip} />
-                </TabsContent>
-                <TabsContent value="upload" className="flex-1 overflow-y-auto">
-                    <UploadPanel onAddClip={handleAddClip}/>
-                </TabsContent>
-                <TabsContent value="text" className="flex-1 overflow-y-auto p-4">
-                  <Button onClick={openTextEditor} className="w-full">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Text
-                  </Button>
-                </TabsContent>
-              </Tabs>
-            </SidebarContent>
+          <div className="md:hidden">
+              <Sheet>
+                  <SheetTrigger asChild>
+                      <SidebarTrigger side="left" />
+                  </SheetTrigger>
+                  <SheetContent side="left" className="p-0 w-80">
+                      <LeftSidebarContent />
+                  </SheetContent>
+              </Sheet>
+          </div>
+          <Sidebar side="left" className="hidden md:flex flex-col p-0">
+              <LeftSidebarContent />
           </Sidebar>
+
           <div className="flex-1 flex items-center justify-center bg-[#111111] p-4">
               <Preview
                 clips={clips}
@@ -217,10 +232,19 @@ export default function Editor() {
                 onSelectClip={handleSelectClip}
               />
           </div>
-          <Sidebar side="right">
-            <SidebarContent>
-                <PropertiesPanel selectedClip={selectedClip} onUpdateClip={handleUpdateClip} onDeleteClip={handleDeleteClip} onOpenTextEditor={openTextEditor}/>
-            </SidebarContent>
+          
+          <div className="md:hidden">
+              <Sheet>
+                  <SheetTrigger asChild>
+                      <SidebarTrigger side="right" />
+                  </SheetTrigger>
+                  <SheetContent side="right" className="p-0 w-80">
+                      <PropertiesPanel selectedClip={selectedClip} onUpdateClip={handleUpdateClip} onDeleteClip={handleDeleteClip} onOpenTextEditor={openTextEditor}/>
+                  </SheetContent>
+              </Sheet>
+          </div>
+          <Sidebar side="right" className="hidden md:flex flex-col">
+              <PropertiesPanel selectedClip={selectedClip} onUpdateClip={handleUpdateClip} onDeleteClip={handleDeleteClip} onOpenTextEditor={openTextEditor}/>
           </Sidebar>
         </main>
         <Timeline
@@ -251,6 +275,5 @@ export default function Editor() {
             </SheetContent>
         </Sheet>
       </div>
-    </SidebarProvider>
   );
 }
