@@ -1,4 +1,4 @@
-export type Tool = 'select' | 'trim' | 'text' | 'effects' | 'ai' | 'upload';
+export type Tool = 'select' | 'split' | 'text' | 'effects' | 'ai' | 'upload';
 
 export interface Clip {
   id: string;
@@ -7,4 +7,8 @@ export interface Clip {
   start: number;
   duration: number;
   track: 'video' | 'audio1';
+  // Video/Audio specific
+  volume?: number;
+  // Text specific
+  text?: string;
 }

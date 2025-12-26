@@ -12,7 +12,7 @@ interface ToolbarProps {
 
 const tools = [
   { id: 'select', name: 'Select', icon: MousePointer },
-  { id: 'trim', name: 'Trim/Cut', icon: Scissors },
+  { id: 'split', name: 'Split', icon: Scissors },
   { id: 'upload', name: 'Upload Media', icon: Upload },
   { id: 'text', name: 'Add Text', icon: Type },
   { id: 'effects', name: 'Effects', icon: Film },

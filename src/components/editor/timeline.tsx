@@ -10,6 +10,8 @@ interface TimelineProps {
   clips: Clip[];
   selectedClip: Clip | null;
   onSelectClip: (clip: Clip | null) => void;
+  playhead: number;
+  setPlayhead: (value: number) => void;
 }
 
 const TOTAL_DURATION = 60; // seconds
@@ -20,9 +22,7 @@ const trackConfig = {
   audio1: { icon: Music, label: 'Audio 1', bg: 'bg-accent/10', border: 'border-accent/50' },
 };
 
-export default function Timeline({ clips, selectedClip, onSelectClip }: TimelineProps) {
-  const [playhead, setPlayhead] = useState(10); // in seconds
-
+export default function Timeline({ clips, selectedClip, onSelectClip, playhead, setPlayhead }: TimelineProps) {
   const renderRuler = () => {
     const markers = [];
     for (let i = 0; i <= TOTAL_DURATION; i += 1) {
@@ -51,7 +51,12 @@ export default function Timeline({ clips, selectedClip, onSelectClip }: Timeline
   };
 
   const renderTrack = (trackId: keyof typeof trackConfig) => (
-    <div className="relative h-16 bg-card border-b" key={trackId}>
+    <div className="relative h-16 bg-card border-b" key={trackId} onClick={(e) => {
+        // Clear selection if clicking on empty space
+        if (e.target === e.currentTarget) {
+            onSelectClip(null);
+        }
+    }}>
       {clips.filter(c => c.track === trackId).map(clip => (
         <div
           key={clip.id}
@@ -64,7 +69,11 @@ export default function Timeline({ clips, selectedClip, onSelectClip }: Timeline
             left: `${clip.start * PIXELS_PER_SECOND}px`,
             width: `${clip.duration * PIXELS_PER_SECOND}px`,
           }}
-          onClick={() => onSelectClip(clip)}
+          onClick={(e) => {
+              e.stopPropagation();
+              onSelectClip(clip);
+            }
+          }
         >
           <ClipIcon type={clip.type} />
           <span className="text-xs font-medium truncate text-foreground">{clip.name}</span>
@@ -72,6 +81,13 @@ export default function Timeline({ clips, selectedClip, onSelectClip }: Timeline
       ))}
     </div>
   );
+  
+  const handleRulerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const newPlayhead = x / PIXELS_PER_SECOND;
+    setPlayhead(Math.max(0, Math.min(TOTAL_DURATION, newPlayhead)));
+  };
 
   return (
     <div className="h-[250px] bg-secondary/20 border-t flex flex-col">
@@ -86,12 +102,12 @@ export default function Timeline({ clips, selectedClip, onSelectClip }: Timeline
         </div>
         <ScrollArea className="flex-1 whitespace-nowrap">
           <div className="relative" style={{ width: TOTAL_DURATION * PIXELS_PER_SECOND }}>
-            <div className="h-8 border-b">
+            <div className="h-8 border-b cursor-pointer" onClick={handleRulerClick}>
               {renderRuler()}
             </div>
             {Object.keys(trackConfig).map(key => renderTrack(key as keyof typeof trackConfig))}
             <div
-              className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10"
+              className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10 pointer-events-none"
               style={{ left: `${playhead * PIXELS_PER_SECOND}px` }}
             >
               <div className="absolute -top-1 -left-1.5 w-4 h-4 bg-red-500 rounded-full"></div>
