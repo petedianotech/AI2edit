@@ -9,7 +9,7 @@ import PropertiesPanel from './properties-panel';
 import { useToast } from '@/hooks/use-toast';
 import AiTools from './ai-tools';
 import UploadPanel from './upload-panel';
-import { Wand2, Upload, Plus, Text, Scissors, Trash2 } from 'lucide-react';
+import { Wand2, Upload, Plus, Text, Scissors, Trash2, Smile, Sparkles, Crop } from 'lucide-react';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { Button } from '../ui/button';
 
@@ -145,13 +145,16 @@ export default function Editor() {
         <div className="w-full bg-card border-t p-2">
             <ScrollArea>
                 <div className="flex flex-row items-center gap-2">
-                    <ToolButton tool="ai" icon={<Wand2 />} label="AI Tools" />
+                    <ToolButton tool="ai" icon={<Smile />} label="Sticker" />
                     <ToolButton tool="text" icon={<Text />} label="Text" />
                     <ToolButton tool="split" icon={<Scissors />} label="Split" />
                      <Button variant="ghost" className="flex flex-col h-auto p-2 gap-1" onClick={() => handleDeleteClip()}>
                         <Trash2 />
                         <span className="text-xs">Delete</span>
                     </Button>
+                    <ToolButton tool="ai" icon={<Sparkles />} label="Enhance" />
+                    <ToolButton tool="ai" icon={<Crop />} label="Cutout" />
+
                 </div>
                 <ScrollBar orientation="horizontal" />
             </ScrollArea>

@@ -67,7 +67,7 @@ export default function Header({ clips }: HeaderProps) {
         </Button>
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Button onClick={handleExport} disabled={isExporting} variant="ghost" className="font-semibold">
+            <Button onClick={handleExport} disabled={isExporting} className="font-semibold">
               {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               {isExporting ? 'Exporting...' : 'Export'}
             </Button>
