@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "video-preview",
+      "description": "Placeholder for video preview screen",
+      "imageUrl": "https://images.unsplash.com/photo-1528109966604-5a6a4a964e8d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx2aWRlbyUyMGVkaXRvcnxlbnwwfHx8fDE3NjY2NjEwMzd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "video editor"
+    },
+    {
+      "id": "clip-1",
+      "description": "Timeline clip 1",
+      "imageUrl": "https://images.unsplash.com/photo-1586348943529-beaae6c28db9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxuYXR1cmUlMjBzdW5zZXR8ZW58MHx8fHwxNzY2NzA4MzE1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "nature sunset"
+    },
+    {
+      "id": "clip-2",
+      "description": "Timeline clip 2",
+      "imageUrl": "https://images.unsplash.com/photo-1507961455425-0caef37ef6fe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y2l0eSUyMHNreWxpbmV8ZW58MHx8fHwxNzY2NjAwMjIzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "city skyline"
+    },
+    {
+      "id": "clip-3",
+      "description": "Timeline clip 3",
+      "imageUrl": "https://images.unsplash.com/photo-1626908013351-800ddd734b8a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YWJzdHJhY3QlMjB0ZWNofGVufDB8fHx8MTc2NjY0MDc0NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract tech"
+    }
+  ]
 }
