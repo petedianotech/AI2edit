@@ -5,7 +5,6 @@ import type { Clip, Tool } from '@/lib/types';
 import Header from './header';
 import Preview from './preview';
 import Timeline from './timeline';
-import PropertiesPanel from './properties-panel';
 import { useToast } from '@/hooks/use-toast';
 import TextEditor from './text-editor';
 import {
@@ -137,6 +136,7 @@ export default function Editor() {
             color: '#FFFFFF',
             fontFamily: 'Inter, sans-serif',
             textAlign: 'center',
+            position: { x: 0.5, y: 0.5 }, // Center of the screen
         };
         const addedClip = handleAddClip(newClip);
         setSelectedClip(addedClip);
@@ -171,7 +171,13 @@ export default function Editor() {
       <Header clips={clips}/>
       <main className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 flex items-center justify-center bg-black p-4">
-            <Preview clips={clips} playhead={playhead} />
+            <Preview
+              clips={clips}
+              playhead={playhead}
+              onUpdateClip={handleUpdateClip}
+              selectedClipId={selectedClip?.id}
+              onSelectClip={handleSelectClip}
+            />
         </div>
         <div className="w-full bg-card border-t p-2">
             <ScrollArea>
@@ -202,8 +208,8 @@ export default function Editor() {
         
       <Sheet open={isTextEditorOpen} onOpenChange={setIsTextEditorOpen}>
           <SheetContent side="bottom" className="h-[90vh] bg-black text-white border-t border-gray-800 flex flex-col p-0">
-            <SheetHeader className="hidden">
-              <SheetTitle>Text Editor</SheetTitle>
+            <SheetHeader className="p-4 border-b border-gray-800">
+              <SheetTitle className="text-white">Text Editor</SheetTitle>
             </SheetHeader>
              {selectedClip?.type === 'text' && (
                 <TextEditor

@@ -16,4 +16,5 @@ export interface Clip {
   color?: string;
   fontFamily?: string;
   textAlign?: 'left' | 'center' | 'right';
+  position?: { x: number; y: number };
 }
