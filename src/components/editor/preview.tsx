@@ -5,10 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Play, Pause, FastForward, Rewind, Volume2, Maximize } from 'lucide-react';
 import type { Clip } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { cn } from '@/lib/utils';
 
 interface PreviewProps {
     clips: Clip[];
     playhead: number;
+}
+
+const alignmentClasses = {
+    left: 'items-center justify-start text-left',
+    center: 'items-center justify-center text-center',
+    right: 'items-center justify-end text-right',
 }
 
 export default function Preview({ clips, playhead }: PreviewProps) {
@@ -37,18 +44,22 @@ export default function Preview({ clips, playhead }: PreviewProps) {
             muted
           />
         )}
-        <div className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none">
             {visibleTextClips.map(clip => (
                 <div 
                     key={clip.id}
+                    className={cn(
+                        "absolute inset-x-4 h-full flex p-4",
+                        alignmentClasses[clip.textAlign || 'center']
+                    )}
                     style={{
                         fontFamily: clip.fontFamily,
                         fontSize: `${clip.fontSize}px`,
                         color: clip.color,
-                        textShadow: '2px 2px 4px rgba(0,0,0,0.7)'
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
                     }}
                 >
-                    {clip.text}
+                    <div className="w-full">{clip.text}</div>
                 </div>
             ))}
         </div>

@@ -135,7 +135,8 @@ export default function Editor() {
             text: 'Your Text Here',
             fontSize: 48,
             color: '#FFFFFF',
-            fontFamily: 'Inter, sans-serif'
+            fontFamily: 'Inter, sans-serif',
+            textAlign: 'center',
         };
         const addedClip = handleAddClip(newClip);
         setSelectedClip(addedClip);

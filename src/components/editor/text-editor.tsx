@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import type { Clip } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { X, Check, Type, Palette, CaseSensitive } from 'lucide-react';
+import { X, Check, Type, Palette, CaseSensitive, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ColorPicker from './color-picker';
 import { Slider } from '../ui/slider';
@@ -95,6 +95,23 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
             </div>
         </div>
     );
+    
+    const renderAlignmentTab = () => (
+        <div className="p-4 space-y-4">
+             <div className="text-sm text-gray-400">Alignment</div>
+             <div className="flex justify-around">
+                <Button variant={clip.textAlign === 'left' ? 'secondary' : 'ghost'} size="icon" onClick={() => handleUpdate({ textAlign: 'left' })}>
+                    <AlignLeft />
+                </Button>
+                <Button variant={clip.textAlign === 'center' ? 'secondary' : 'ghost'} size="icon" onClick={() => handleUpdate({ textAlign: 'center' })}>
+                    <AlignCenter />
+                </Button>
+                <Button variant={clip.textAlign === 'right' ? 'secondary' : 'ghost'} size="icon" onClick={() => handleUpdate({ textAlign: 'right' })}>
+                    <AlignRight />
+                </Button>
+            </div>
+        </div>
+    );
 
     return (
         <div className="h-full flex flex-col">
@@ -105,6 +122,7 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
                 <div className="flex items-center gap-4">
                     <Button variant={activeTab === 'text' ? 'secondary' : 'ghost'} size="icon" onClick={() => setActiveTab('text')}><Palette/></Button>
                     <Button variant={activeTab === 'font' ? 'secondary' : 'ghost'} size="icon" onClick={() => setActiveTab('font')}><Type /></Button>
+                    <Button variant={activeTab === 'align' ? 'secondary' : 'ghost'} size="icon" onClick={() => setActiveTab('align')}><AlignLeft /></Button>
                 </div>
                 <Button variant="ghost" size="icon" onClick={handleSave}>
                     <Check />
@@ -116,12 +134,16 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
                     <TabsList className="hidden">
                         <TabsTrigger value="text">Text</TabsTrigger>
                         <TabsTrigger value="font">Font</TabsTrigger>
+                        <TabsTrigger value="align">Alignment</TabsTrigger>
                     </TabsList>
                     <TabsContent value="text" forceMount>
                         {renderTextTab()}
                     </TabsContent>
                     <TabsContent value="font" forceMount>
                         {renderFontTab()}
+                    </TabsContent>
+                    <TabsContent value="align" forceMount>
+                        {renderAlignmentTab()}
                     </TabsContent>
                 </Tabs>
             </div>
