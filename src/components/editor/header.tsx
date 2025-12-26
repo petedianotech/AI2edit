@@ -1,9 +1,8 @@
 'use client';
 
-import { Logo } from '@/components/icons/logo';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, ArrowLeft } from 'lucide-react';
 import type { Clip } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -61,19 +60,15 @@ export default function Header({ clips }: HeaderProps) {
 
 
   return (
-    <header className="shrink-0">
-      <div className="flex h-16 items-center justify-between px-4 lg:px-6">
-        <div className="flex items-center gap-3">
-          <Logo className="h-8 w-8 text-primary" />
-          <h1 className="text-xl font-bold tracking-tighter text-foreground">
-            MotionSpeak
-          </h1>
-        </div>
+    <header className="shrink-0 bg-card border-b">
+      <div className="flex h-14 items-center justify-between px-4 lg:px-6">
+        <Button variant="ghost" size="icon">
+            <ArrowLeft className="h-5 w-5" />
+        </Button>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">Help</Button>
           <div className="relative">
-            <Button onClick={handleExport} disabled={isExporting}>
-              {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            <Button onClick={handleExport} disabled={isExporting} variant="ghost" className="font-semibold">
+              {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               {isExporting ? 'Exporting...' : 'Export'}
             </Button>
             {isExporting && (
@@ -84,7 +79,6 @@ export default function Header({ clips }: HeaderProps) {
           </div>
         </div>
       </div>
-      <Separator />
     </header>
   );
 }

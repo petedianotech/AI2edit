@@ -26,17 +26,18 @@ export default function Preview({ clips, playhead }: PreviewProps) {
   
 
   return (
-    <div className="w-full max-w-[360px] aspect-[9/16] bg-card rounded-lg shadow-lg overflow-hidden flex flex-col mx-auto">
+    <div className="w-full max-w-[360px] aspect-[9/16] bg-black rounded-lg shadow-lg overflow-hidden flex flex-col mx-auto">
       <div className="flex-1 relative bg-black">
-        {activeVideoClip && (
-          <Image
-            src={activeVideoClip.src!}
-            alt={activeVideoClip.name}
-            fill
-            className="object-cover"
+        {activeVideoClip && activeVideoClip.src && (
+          <video
+            key={activeVideoClip.src}
+            src={activeVideoClip.src}
+            className="w-full h-full object-contain"
+            autoPlay={false} // Manage playback via state
+            muted
           />
         )}
-        <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
             {visibleTextClips.map(clip => (
                 <div 
                     key={clip.id}
@@ -44,37 +45,12 @@ export default function Preview({ clips, playhead }: PreviewProps) {
                         fontFamily: clip.fontFamily,
                         fontSize: `${clip.fontSize}px`,
                         color: clip.color,
-                        // Basic text shadow for better visibility
                         textShadow: '2px 2px 4px rgba(0,0,0,0.7)'
                     }}
                 >
                     {clip.text}
                 </div>
             ))}
-        </div>
-      </div>
-      <div className="bg-secondary/30 p-2 border-t">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-              <Rewind className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="bg-primary/20">
-              <Play className="h-6 w-6" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <FastForward className="h-5 w-5" />
-            </Button>
-            <div className="text-sm text-muted-foreground font-mono">00:00 / 00:12</div>
-          </div>
-          <div className="flex items-center gap-2">
-             <Button variant="ghost" size="icon">
-              <Volume2 className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Maximize className="h-5 w-5" />
-            </Button>
-          </div>
         </div>
       </div>
     </div>

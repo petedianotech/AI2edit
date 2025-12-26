@@ -10,8 +10,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AiTools from './ai-tools';
 import UploadPanel from './upload-panel';
-import { Wand2, Upload } from 'lucide-react';
+import { Wand2, Upload, Plus } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
+import { Button } from '../ui/button';
 
 const initialClips: Clip[] = [];
 
@@ -96,49 +97,23 @@ export default function Editor() {
   return (
     <div className="flex h-screen w-full flex-col bg-background text-foreground">
       <Header clips={clips}/>
-      <div className="flex flex-1 overflow-hidden">
-        <main className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 overflow-hidden">
-            <div className="lg:col-span-2 flex flex-col gap-4">
-                <div className="flex-1 flex items-center justify-center bg-card rounded-lg relative overflow-hidden">
-                    <Preview clips={clips} playhead={playhead} />
-                </div>
-                <Timeline
-                    clips={clips}
-                    selectedClip={selectedClip}
-                    onSelectClip={handleSelectClip}
-                    playhead={playhead}
-                    setPlayhead={setPlayhead}
-                    onUpdateClip={handleUpdateClip}
-                />
-            </div>
-            <div className="lg:col-span-1 flex flex-col">
-                <aside className="w-full h-full border-l bg-secondary/20 rounded-lg">
-                    <ScrollArea className="h-full">
-                         <Tabs defaultValue="properties" className="w-full">
-                            <TabsList className="grid w-full grid-cols-3">
-                                <TabsTrigger value="properties">Properties</TabsTrigger>
-                                <TabsTrigger value="upload"><Upload className="w-4 h-4 mr-2" /> Media</TabsTrigger>
-                                <TabsTrigger value="ai"><Wand2 className="w-4 h-4 mr-2" /> AI</TabsTrigger>
-                            </TabsList>
-                             <TabsContent value="properties">
-                                <PropertiesPanel
-                                    selectedClip={selectedClip}
-                                    onUpdateClip={handleUpdateClip}
-                                    onDeleteClip={handleDeleteClip}
-                                />
-                             </TabsContent>
-                             <TabsContent value="upload">
-                                 <UploadPanel onAddClip={handleAddClip} />
-                             </TabsContent>
-                             <TabsContent value="ai">
-                                 <AiTools onAddClip={handleAddClip} />
-                             </TabsContent>
-                         </Tabs>
-                    </ScrollArea>
-                </aside>
-            </div>
-        </main>
-      </div>
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex items-center justify-center bg-black p-4">
+            <Preview clips={clips} playhead={playhead} />
+        </div>
+        <div className="bg-secondary/20 border-t">
+          {/* This will be the bottom toolbar area */}
+        </div>
+        <Timeline
+            clips={clips}
+            selectedClip={selectedClip}
+            onSelectClip={handleSelectClip}
+            playhead={playhead}
+            setPlayhead={setPlayhead}
+            onUpdateClip={handleUpdateClip}
+            onAddClip={handleAddClip}
+        />
+      </main>
     </div>
   );
 }
