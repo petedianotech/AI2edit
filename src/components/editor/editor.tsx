@@ -7,11 +7,27 @@ import Preview from './preview';
 import Timeline from './timeline';
 import PropertiesPanel from './properties-panel';
 import { useToast } from '@/hooks/use-toast';
-import AiTools from './ai-tools';
-import UploadPanel from './upload-panel';
-import { Wand2, Upload, Plus, Text, Scissors, Trash2, Smile, Sparkles, Crop } from 'lucide-react';
+import TextEditor from './text-editor';
+import {
+  Wand2,
+  Upload,
+  Plus,
+  Text,
+  Scissors,
+  Trash2,
+  Smile,
+  Sparkles,
+  Crop,
+  X,
+  Check,
+  Palette,
+  Type as TypeIcon,
+  AlignLeft,
+} from 'lucide-react';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { Button } from '../ui/button';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+
 
 const initialClips: Clip[] = [];
 
@@ -20,6 +36,7 @@ export default function Editor() {
   const [clips, setClips] = useState<Clip[]>(initialClips);
   const [selectedClip, setSelectedClip] = useState<Clip | null>(null);
   const [playhead, setPlayhead] = useState(0);
+  const [isTextEditorOpen, setIsTextEditorOpen] = useState(false);
   const { toast } = useToast();
 
   const handleAddClip = (newClip: Clip) => {
@@ -37,6 +54,7 @@ export default function Editor() {
     finalClip.start = newStart;
 
     setClips(prev => [...prev, finalClip]);
+    return finalClip;
   }
 
   const handleSelectClip = (clip: Clip | null) => {
@@ -46,6 +64,9 @@ export default function Editor() {
     }
 
     setSelectedClip(clip);
+    if (clip?.type === 'text') {
+        setIsTextEditorOpen(true);
+    }
   }
 
   const handleUpdateClip = (updatedClip: Clip) => {
@@ -98,38 +119,45 @@ export default function Editor() {
     toast({ title: 'Clip split', description: `${clipToSplit.name} was split into two parts.`});
   };
 
-  const handleAddText = () => {
-    const newClip: Clip = {
-      id: `text-${Date.now()}`,
-      type: 'text',
-      name: 'New Text',
-      start: playhead,
-      duration: 5,
-      track: 'video', // Text clips go on the video track for overlay
-      text: 'Your Text Here',
-      fontSize: 48,
-      color: '#FFFFFF',
-      fontFamily: 'Inter, sans-serif'
-    };
-    handleAddClip(newClip);
-    setSelectedClip(newClip);
+  const openTextEditor = () => {
+    if (selectedClip && selectedClip.type === 'text') {
+        // Edit existing text clip
+        setIsTextEditorOpen(true);
+    } else {
+        // Add new text clip
+        const newClip: Clip = {
+            id: `text-${Date.now()}`,
+            type: 'text',
+            name: 'New Text',
+            start: playhead,
+            duration: 5,
+            track: 'video', // Text clips go on the video track for overlay
+            text: 'Your Text Here',
+            fontSize: 48,
+            color: '#FFFFFF',
+            fontFamily: 'Inter, sans-serif'
+        };
+        const addedClip = handleAddClip(newClip);
+        setSelectedClip(addedClip);
+        setIsTextEditorOpen(true);
+    }
     setActiveTool('select'); // Switch back to select tool
   }
   
-  const renderPanelContent = () => {
-    switch(activeTool) {
-      case 'ai':
-        return <AiTools onAddClip={handleAddClip} />;
-      case 'upload':
-        return <UploadPanel onAddClip={handleAddClip} />
-      case 'select':
-      default:
-        return <PropertiesPanel selectedClip={selectedClip} onUpdateClip={handleUpdateClip} onDeleteClip={handleDeleteClip} />;
+  const handleTextEditorClose = (save: boolean) => {
+    if (!save && selectedClip && clips.find(c => c.id === selectedClip.id) && selectedClip.text === 'Your Text Here') {
+      // If user closes without saving a new clip, remove it
+      const originalClip = clips.find(c => c.id === selectedClip.id)
+      if (originalClip && originalClip.text === 'Your Text Here' && originalClip.name === 'New Text') {
+          handleDeleteClip(selectedClip.id);
+      }
     }
-  };
+    setIsTextEditorOpen(false);
+    setSelectedClip(null);
+  }
 
-  const ToolButton = ({ tool, icon, label }: {tool: Tool, icon: React.ReactNode, label: string}) => (
-    <Button variant="ghost" className={`flex flex-col h-auto p-2 gap-1 ${activeTool === tool ? 'text-primary' : ''}`} onClick={() => setActiveTool(tool)}>
+  const ToolButton = ({ tool, icon, label, onClick }: {tool: Tool, icon: React.ReactNode, label: string, onClick?: () => void}) => (
+    <Button variant="ghost" className={`flex flex-col h-auto p-2 gap-1 ${activeTool === tool ? 'text-primary' : ''}`} onClick={onClick ? onClick : () => setActiveTool(tool)}>
       {icon}
       <span className="text-xs">{label}</span>
     </Button>
@@ -146,7 +174,7 @@ export default function Editor() {
             <ScrollArea>
                 <div className="flex flex-row items-center gap-2">
                     <ToolButton tool="ai" icon={<Smile />} label="Sticker" />
-                    <ToolButton tool="text" icon={<Text />} label="Text" />
+                    <ToolButton tool="text" icon={<Text />} label="Text" onClick={openTextEditor} />
                     <ToolButton tool="split" icon={<Scissors />} label="Split" />
                      <Button variant="ghost" className="flex flex-col h-auto p-2 gap-1" onClick={() => handleDeleteClip()}>
                         <Trash2 />
@@ -154,7 +182,6 @@ export default function Editor() {
                     </Button>
                     <ToolButton tool="ai" icon={<Sparkles />} label="Enhance" />
                     <ToolButton tool="ai" icon={<Crop />} label="Cutout" />
-
                 </div>
                 <ScrollBar orientation="horizontal" />
             </ScrollArea>
@@ -169,6 +196,18 @@ export default function Editor() {
             onUpdateClip={handleUpdateClip}
             onAddClip={handleAddClip}
         />
+        
+      <Sheet open={isTextEditorOpen} onOpenChange={setIsTextEditorOpen}>
+          <SheetContent side="bottom" className="h-[90vh] bg-black text-white border-t border-gray-800 flex flex-col p-0">
+             {selectedClip?.type === 'text' && (
+                <TextEditor
+                    clip={selectedClip}
+                    onUpdateClip={handleUpdateClip}
+                    onClose={handleTextEditorClose}
+                />
+             )}
+          </SheetContent>
+      </Sheet>
     </div>
   );
 }
