@@ -3,7 +3,7 @@
 import type { Clip } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Video, Music, Type } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 interface TimelineProps {
@@ -89,7 +89,7 @@ export default function Timeline({ clips, selectedClip, onSelectClip }: Timeline
             <div className="h-8 border-b">
               {renderRuler()}
             </div>
-            {Object.keys(trackConfig).map(key => renderTrack(key as keyof typeof trackConfig))}
+            {Object.keys(trackConfig).map(key => React.cloneElement(renderTrack(key as keyof typeof trackConfig), { key }))}
             <div
               className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10"
               style={{ left: `${playhead * PIXELS_PER_SECOND}px` }}
