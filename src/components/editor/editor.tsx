@@ -18,7 +18,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import AiTools from './ai-tools';
 import UploadPanel from './upload-panel';
 import PropertiesPanel from './properties-panel';
-import { Sidebar, SidebarContent, SidebarProvider } from '../ui/sidebar';
+import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from '../ui/sidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 
@@ -185,12 +185,12 @@ export default function Editor() {
         <Header clips={clips}/>
         <main className="flex-1 flex overflow-hidden">
           <Sidebar side="left">
-            <SidebarContent>
+            <SidebarContent className="p-0">
               <Tabs defaultValue="ai" className="h-full flex flex-col">
-                <TabsList className="w-full">
-                  <TabsTrigger value="ai" className="flex-1"><Wand2 /> AI</TabsTrigger>
-                  <TabsTrigger value="upload" className="flex-1"><Upload /> Media</TabsTrigger>
-                  <TabsTrigger value="text" className="flex-1"><Text /> Text</TabsTrigger>
+                <TabsList className="w-full justify-around rounded-none">
+                  <TabsTrigger value="ai" className="flex-1 rounded-none"><Wand2 /> AI</TabsTrigger>
+                  <TabsTrigger value="upload" className="flex-1 rounded-none"><Upload /> Media</TabsTrigger>
+                  <TabsTrigger value="text" className="flex-1 rounded-none"><Text /> Text</TabsTrigger>
                 </TabsList>
                 <TabsContent value="ai" className="flex-1 overflow-y-auto">
                     <AiTools onAddClip={handleAddClip} />
@@ -207,7 +207,7 @@ export default function Editor() {
               </Tabs>
             </SidebarContent>
           </Sidebar>
-          <div className="flex-1 flex items-center justify-center bg-black p-4">
+          <div className="flex-1 flex items-center justify-center bg-[#111111] p-4">
               <Preview
                 clips={clips}
                 playhead={playhead}

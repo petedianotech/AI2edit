@@ -47,7 +47,7 @@ export default function Preview({ clips, playhead, isPlaying, onUpdateClip, sele
   return (
     <div
       ref={containerRef}
-      className="w-full max-w-[360px] aspect-[9/16] bg-black rounded-lg shadow-lg overflow-hidden flex flex-col mx-auto relative"
+      className="w-full max-w-[360px] aspect-[9/16] bg-black rounded-lg shadow-lg overflow-hidden relative"
       onClick={() => onSelectClip(null)} // Deselect when clicking background
     >
       <div className="w-full h-full">
