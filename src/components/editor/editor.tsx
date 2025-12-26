@@ -7,7 +7,6 @@ import Toolbar from './toolbar';
 import Preview from './preview';
 import Timeline from './timeline';
 import PropertiesPanel from './properties-panel';
-import { useToast } from '@/hooks/use-toast';
 
 const initialClips: Clip[] = [
   { id: '1', type: 'video', name: 'Nature Sunset', start: 0, duration: 5, track: 'video' },
@@ -20,18 +19,13 @@ export default function Editor() {
   const [activeTool, setActiveTool] = useState<Tool>('select');
   const [clips, setClips] = useState<Clip[]>(initialClips);
   const [selectedClip, setSelectedClip] = useState<Clip | null>(null);
-  const { toast } = useToast();
 
   const handleAddClip = (newClip: Clip) => {
     setClips(prev => [...prev, newClip]);
-    toast({
-        title: 'Upload successful',
-        description: `${newClip.name} has been added to the timeline.`,
-    });
   }
 
   const handleSelectClip = (clip: Clip | null) => {
-    if (activeTool !== 'select') {
+    if (activeTool !== 'select' && activeTool !== 'ai' && activeTool !== 'upload') {
       setActiveTool('select');
     }
     setSelectedClip(clip);
@@ -43,21 +37,24 @@ export default function Editor() {
       <div className="flex flex-1 overflow-hidden">
         <Toolbar activeTool={activeTool} setActiveTool={setActiveTool} />
         <main className="flex flex-1 flex-col overflow-hidden">
-          <div className="flex-1 p-4 lg:p-6 overflow-auto relative">
-            <Preview />
+          <div className="flex flex-1 p-4 lg:p-6 overflow-auto relative">
+            <div className="flex-1 flex items-center justify-center">
+              <Preview />
+            </div>
+            <div className="w-full max-w-sm">
+                <PropertiesPanel
+                    activeTool={activeTool}
+                    selectedClip={selectedClip}
+                    onAddClip={handleAddClip}
+                />
+            </div>
           </div>
           <Timeline
             clips={clips}
             selectedClip={selectedClip}
             onSelectClip={handleSelectClip}
-            onAddClip={handleAddClip}
           />
         </main>
-        <PropertiesPanel
-          activeTool={activeTool}
-          selectedClip={selectedClip}
-          onAddClip={handleAddClip}
-        />
       </div>
     </div>
   );

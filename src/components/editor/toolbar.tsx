@@ -3,7 +3,7 @@
 import type { Tool } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { MousePointer, Scissors, Type, Wand2, Film } from 'lucide-react';
+import { MousePointer, Scissors, Type, Wand2, Film, Upload } from 'lucide-react';
 
 interface ToolbarProps {
   activeTool: Tool;
@@ -13,6 +13,7 @@ interface ToolbarProps {
 const tools = [
   { id: 'select', name: 'Select', icon: MousePointer },
   { id: 'trim', name: 'Trim/Cut', icon: Scissors },
+  { id: 'upload', name: 'Upload Media', icon: Upload },
   { id: 'text', name: 'Add Text', icon: Type },
   { id: 'effects', name: 'Effects', icon: Film },
   { id: 'ai', name: 'AI Tools', icon: Wand2 },

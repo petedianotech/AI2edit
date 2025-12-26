@@ -1,18 +1,15 @@
 'use client';
 
+import React, { useState } from 'react';
 import type { Clip } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { Video, Music, Type, Upload } from 'lucide-react';
-import React, { useRef, useState } from 'react';
+import { Video, Music, Type } from 'lucide-react';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Button } from '../ui/button';
-import { useToast } from '@/hooks/use-toast';
 
 interface TimelineProps {
   clips: Clip[];
   selectedClip: Clip | null;
   onSelectClip: (clip: Clip | null) => void;
-  onAddClip: (clip: Clip) => void;
 }
 
 const TOTAL_DURATION = 60; // seconds
@@ -23,41 +20,8 @@ const trackConfig = {
   audio1: { icon: Music, label: 'Audio 1', bg: 'bg-accent/10', border: 'border-accent/50' },
 };
 
-export default function Timeline({ clips, selectedClip, onSelectClip, onAddClip }: TimelineProps) {
+export default function Timeline({ clips, selectedClip, onSelectClip }: TimelineProps) {
   const [playhead, setPlayhead] = useState(10); // in seconds
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const video = document.createElement('video');
-    video.preload = 'metadata';
-    video.onloadedmetadata = () => {
-      window.URL.revokeObjectURL(video.src);
-      const newClip: Clip = {
-        id: `video-${Date.now()}`,
-        type: 'video',
-        name: file.name,
-        start: 0,
-        duration: video.duration,
-        track: 'video',
-      };
-      onAddClip(newClip);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    };
-    video.onerror = () => {
-      toast({
-        title: 'Error reading video',
-        description: 'Could not determine video duration.',
-        variant: 'destructive',
-      });
-    };
-    video.src = URL.createObjectURL(file);
-  };
 
   const renderRuler = () => {
     const markers = [];
@@ -113,17 +77,6 @@ export default function Timeline({ clips, selectedClip, onSelectClip, onAddClip 
     <div className="h-[250px] bg-secondary/20 border-t flex flex-col">
       <div className="flex h-full">
         <div className="w-32 border-r p-2 flex flex-col gap-2">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            className="hidden"
-            accept="video/*"
-          />
-          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="mr-2" />
-            Upload
-          </Button>
           {Object.entries(trackConfig).map(([key, { icon: Icon, label, bg, border }]) => (
             <div key={key} className={cn("h-16 rounded-md flex items-center p-2 text-sm font-semibold", bg, border)}>
               <Icon className="w-4 h-4 mr-2" />

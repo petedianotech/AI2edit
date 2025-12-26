@@ -9,14 +9,14 @@ export default function Preview() {
   const previewImage = PlaceHolderImages.find(img => img.id === 'video-preview');
 
   return (
-    <div className="aspect-video w-full max-w-4xl mx-auto bg-card rounded-lg shadow-lg overflow-hidden flex flex-col">
+    <div className="w-full max-w-[360px] aspect-[9/16] bg-card rounded-lg shadow-lg overflow-hidden flex flex-col mx-auto">
       <div className="flex-1 relative bg-black">
         {previewImage && (
           <Image
             src={previewImage.imageUrl}
             alt={previewImage.description}
             fill
-            className="object-contain"
+            className="object-cover"
             data-ai-hint={previewImage.imageHint}
           />
         )}
