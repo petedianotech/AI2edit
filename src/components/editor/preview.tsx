@@ -54,7 +54,7 @@ export default function Preview({ clips, playhead, isPlaying, onUpdateClip, sele
         {activeVideoClip && activeVideoClip.src && (
           <video
             ref={videoRef}
-            key={activeVideoC.id}
+            key={activeVideoClip.id}
             src={activeVideoClip.src}
             className="w-full h-full object-contain"
             muted
