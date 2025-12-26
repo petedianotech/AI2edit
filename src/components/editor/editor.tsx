@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Clip, Tool } from '@/lib/types';
 import Header from './header';
 import Preview from './preview';
@@ -35,8 +35,29 @@ export default function Editor() {
   const [clips, setClips] = useState<Clip[]>(initialClips);
   const [selectedClip, setSelectedClip] = useState<Clip | null>(null);
   const [playhead, setPlayhead] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [isTextEditorOpen, setIsTextEditorOpen] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    let animationFrameId: number;
+    if (isPlaying) {
+      const startTime = performance.now() - playhead * 1000;
+      const animate = () => {
+        const newPlayhead = (performance.now() - startTime) / 1000;
+        setPlayhead(newPlayhead);
+        if (newPlayhead < 60) { // Assuming 60s total duration
+          animationFrameId = requestAnimationFrame(animate);
+        } else {
+          setIsPlaying(false);
+          setPlayhead(0);
+        }
+      };
+      animationFrameId = requestAnimationFrame(animate);
+    }
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isPlaying, playhead]);
+
 
   const handleAddClip = (newClip: Clip) => {
     let finalClip = { ...newClip };
@@ -174,6 +195,7 @@ export default function Editor() {
             <Preview
               clips={clips}
               playhead={playhead}
+              isPlaying={isPlaying}
               onUpdateClip={handleUpdateClip}
               selectedClipId={selectedClip?.id}
               onSelectClip={handleSelectClip}
@@ -202,6 +224,8 @@ export default function Editor() {
             onSelectClip={handleSelectClip}
             playhead={playhead}
             setPlayhead={setPlayhead}
+            isPlaying={isPlaying}
+            setIsPlaying={setIsPlaying}
             onUpdateClip={handleUpdateClip}
             onAddClip={handleAddClip}
         />

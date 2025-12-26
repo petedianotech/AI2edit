@@ -1,19 +1,21 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import type { Clip } from '@/lib/types';
 import DraggableResizableText from './draggable-resizable-text';
 
 interface PreviewProps {
   clips: Clip[];
   playhead: number;
+  isPlaying: boolean;
   onUpdateClip: (clip: Clip) => void;
   selectedClipId?: string | null;
   onSelectClip: (clip: Clip | null) => void;
 }
 
-export default function Preview({ clips, playhead, onUpdateClip, selectedClipId, onSelectClip }: PreviewProps) {
+export default function Preview({ clips, playhead, isPlaying, onUpdateClip, selectedClipId, onSelectClip }: PreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   
   const visibleTextClips = clips.filter(clip =>
     clip.type === 'text' &&
@@ -27,6 +29,21 @@ export default function Preview({ clips, playhead, onUpdateClip, selectedClipId,
     playhead < (clip.start + clip.duration)
   );
 
+  useEffect(() => {
+    if (videoRef.current && activeVideoClip) {
+      if (isPlaying) {
+        videoRef.current.play().catch(e => console.error("Playback error:", e));
+      } else {
+        videoRef.current.pause();
+      }
+      const videoTime = playhead - activeVideoClip.start;
+      if (Math.abs(videoRef.current.currentTime - videoTime) > 0.1) {
+          videoRef.current.currentTime = videoTime;
+      }
+    }
+  }, [isPlaying, playhead, activeVideoClip]);
+
+
   return (
     <div
       ref={containerRef}
@@ -36,11 +53,12 @@ export default function Preview({ clips, playhead, onUpdateClip, selectedClipId,
       <div className="w-full h-full">
         {activeVideoClip && activeVideoClip.src && (
           <video
-            key={activeVideoClip.src}
+            ref={videoRef}
+            key={activeVideoC.id}
             src={activeVideoClip.src}
             className="w-full h-full object-contain"
-            autoPlay={false} // Manage playback via state
             muted
+            playsInline
           />
         )}
       </div>

@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import type { Clip } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { Video, Music, Type, Plus, Loader2 } from 'lucide-react';
+import { Video, Music, Type, Plus, Loader2, Play, Pause } from 'lucide-react';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '../ui/button';
@@ -15,6 +15,8 @@ interface TimelineProps {
   onSelectClip: (clip: Clip | null) => void;
   playhead: number;
   setPlayhead: (value: number) => void;
+  isPlaying: boolean;
+  setIsPlaying: (playing: boolean) => void;
   onUpdateClip: (clip: Clip) => void;
   onAddClip: (clip: Clip) => void;
 }
@@ -52,7 +54,7 @@ function getMediaDuration(file: File): Promise<number> {
     })
 }
 
-export default function Timeline({ clips, selectedClip, onSelectClip, playhead, setPlayhead, onAddClip }: TimelineProps) {
+export default function Timeline({ clips, selectedClip, onSelectClip, playhead, setPlayhead, isPlaying, setIsPlaying, onAddClip }: TimelineProps) {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -172,10 +174,14 @@ export default function Timeline({ clips, selectedClip, onSelectClip, playhead, 
     setPlayhead(Math.max(0, Math.min(TOTAL_DURATION, newPlayhead)));
   };
 
+  const handlePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  }
+
   return (
     <div className="h-[220px] bg-secondary/20 flex flex-col">
       <div className="flex h-full">
-        <div className="w-20 border-r p-2 flex flex-col justify-start items-center">
+        <div className="w-20 border-r p-2 flex flex-col justify-start items-center gap-2">
              <input
                 type="file"
                 ref={fileInputRef}
@@ -186,6 +192,9 @@ export default function Timeline({ clips, selectedClip, onSelectClip, playhead, 
             />
             <Button onClick={handleAddClick} size="icon" variant="outline" className="rounded-lg w-12 h-12 bg-card" disabled={uploading}>
                 {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Plus className="h-5 w-5" />}
+            </Button>
+            <Button onClick={handlePlayPause} size="icon" variant="outline" className="rounded-lg w-12 h-12 bg-card">
+              {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
             </Button>
         </div>
         <ScrollArea className="flex-1 whitespace-nowrap">

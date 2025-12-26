@@ -48,7 +48,7 @@ export default function DraggableResizableText({
         : 'none';
         
     const textOutline = clip.textOutline
-        ? `${clip.textOutline.width}px ${clip.textOutline.width}px ${clip.textOutline.color}`
+        ? `${clip.textOutline.width}px ${clip.textOutline.color}`
         : undefined;
 
 
