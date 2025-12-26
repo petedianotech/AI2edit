@@ -24,9 +24,10 @@ import {
   Type as TypeIcon,
   AlignLeft,
 } from 'lucide-react';
-import { ScrollArea, ScrollBar } from '../ui/scroll-area';
+import { ScrollArea } from '../ui/scroll-area';
 import { Button } from '../ui/button';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { ScrollBar } from '@/components/ui/scroll-area';
 
 
 const initialClips: Clip[] = [];
@@ -199,6 +200,9 @@ export default function Editor() {
         
       <Sheet open={isTextEditorOpen} onOpenChange={setIsTextEditorOpen}>
           <SheetContent side="bottom" className="h-[90vh] bg-black text-white border-t border-gray-800 flex flex-col p-0">
+            <SheetHeader className="hidden">
+              <SheetTitle>Text Editor</SheetTitle>
+            </SheetHeader>
              {selectedClip?.type === 'text' && (
                 <TextEditor
                     clip={selectedClip}
