@@ -27,4 +27,9 @@ export interface Clip {
     color: string;
     width: number;
   };
+  textBackground?: {
+    color: string;
+    padding: number;
+    borderRadius: number;
+  };
 }

@@ -31,15 +31,19 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
         // Store the initial state of the clip when the editor opens
         setOriginalClip(clip);
         
-        // Initialize shadow if it doesn't exist
         if (clip.type === 'text' && !clip.textShadow) {
             handleUpdate({
-                textShadow: {
-                    color: '#000000',
-                    blur: 4,
-                    offsetX: 2,
-                    offsetY: 2,
-                }
+                textShadow: { color: '#000000', blur: 4, offsetX: 2, offsetY: 2 }
+            })
+        }
+        if (clip.type === 'text' && !clip.textOutline) {
+             handleUpdate({
+                textOutline: { color: '#000000', width: 2 }
+            })
+        }
+        if (clip.type === 'text' && !clip.textBackground) {
+             handleUpdate({
+                textBackground: { color: '#00000080', padding: 10, borderRadius: 10 }
             })
         }
     }, []); // Empty dependency array ensures this runs only once on mount
@@ -129,6 +133,7 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
     const renderStyleTab = () => {
         const shadowEnabled = !!clip.textShadow;
         const outlineEnabled = !!clip.textOutline;
+        const backgroundEnabled = !!clip.textBackground;
         
         const handleShadowPropertyChange = (prop: string, value: any) => {
             handleUpdate({ textShadow: { ...clip.textShadow!, [prop]: value } });
@@ -136,6 +141,10 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
 
         const handleOutlinePropertyChange = (prop: string, value: any) => {
             handleUpdate({ textOutline: { ...clip.textOutline!, [prop]: value } });
+        };
+
+        const handleBackgroundPropertyChange = (prop: string, value: any) => {
+            handleUpdate({ textBackground: { ...clip.textBackground!, [prop]: value } });
         };
         
         return (
@@ -222,6 +231,49 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
                                     onValueChange={(v) => handleOutlinePropertyChange('width', v[0])}
                                 />
                                 <span className="text-sm w-8">{clip.textOutline.width}</span>
+                             </div>
+                        </div>
+                    </div>
+                )}
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="background-switch" className="text-sm text-gray-400">Text Background</Label>
+                    <Switch
+                        id="background-switch"
+                        checked={backgroundEnabled}
+                        onCheckedChange={(checked) => handleUpdate({
+                            textBackground: checked ? { color: '#00000080', padding: 10, borderRadius: 10 } : undefined
+                        })}
+                    />
+                </div>
+                 {backgroundEnabled && clip.textBackground && (
+                    <div className="space-y-4 pl-4 border-l-2 border-gray-800">
+                        <div>
+                            <Label className="text-sm text-gray-400">Background Color</Label>
+                             <ColorPicker
+                                selectedColor={clip.textBackground.color}
+                                onColorChange={(color) => handleBackgroundPropertyChange('color', color)}
+                            />
+                        </div>
+                        <div className="space-y-4">
+                             <Label className="text-sm text-gray-400">Padding</Label>
+                             <div className="flex items-center gap-4">
+                                <Slider
+                                    min={0} max={50} step={1}
+                                    value={[clip.textBackground.padding]}
+                                    onValueChange={(v) => handleBackgroundPropertyChange('padding', v[0])}
+                                />
+                                <span className="text-sm w-8">{clip.textBackground.padding}</span>
+                             </div>
+                        </div>
+                        <div className="space-y-4">
+                             <Label className="text-sm text-gray-400">Border Radius</Label>
+                             <div className="flex items-center gap-4">
+                                <Slider
+                                    min={0} max={50} step={1}
+                                    value={[clip.textBackground.borderRadius]}
+                                    onValueChange={(v) => handleBackgroundPropertyChange('borderRadius', v[0])}
+                                />
+                                <span className="text-sm w-8">{clip.textBackground.borderRadius}</span>
                              </div>
                         </div>
                     </div>
