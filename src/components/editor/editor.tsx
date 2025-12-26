@@ -26,6 +26,11 @@ import {
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { Button } from '../ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import AiTools from './ai-tools';
+import UploadPanel from './upload-panel';
+import PropertiesPanel from './properties-panel';
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, SidebarTrigger } from '../ui/sidebar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 
 const initialClips: Clip[] = [];
@@ -183,71 +188,78 @@ export default function Editor() {
     setSelectedClip(null);
   }
 
-  const ToolButton = ({ tool, icon, label, onClick }: {tool: Tool, icon: React.ReactNode, label: string, onClick?: () => void}) => (
-    <Button variant="ghost" className={`flex flex-col h-auto p-2 gap-1 ${activeTool === tool ? 'text-primary' : ''}`} onClick={onClick ? onClick : () => setActiveTool(tool)}>
-      {icon}
-      <span className="text-xs">{label}</span>
-    </Button>
-  );
-
   return (
-    <div className="flex h-screen w-full flex-col bg-background text-foreground">
-      <Header clips={clips}/>
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-1 flex items-center justify-center bg-black p-4">
-            <Preview
+    <SidebarProvider>
+      <div className="flex h-screen w-full flex-col bg-background text-foreground">
+        <Header clips={clips}/>
+        <main className="flex-1 flex overflow-hidden">
+          <Sidebar side="left" className="w-80">
+            <SidebarContent>
+              <Tabs defaultValue="ai" className="h-full flex flex-col">
+                <TabsList className="w-full">
+                  <TabsTrigger value="ai" className="flex-1"><Wand2 /> AI</TabsTrigger>
+                  <TabsTrigger value="upload" className="flex-1"><Upload /> Media</TabsTrigger>
+                  <TabsTrigger value="text" className="flex-1"><Text /> Text</TabsTrigger>
+                </TabsList>
+                <TabsContent value="ai" className="flex-1 overflow-y-auto">
+                    <AiTools onAddClip={handleAddClip} />
+                </TabsContent>
+                <TabsContent value="upload" className="flex-1 overflow-y-auto">
+                    <UploadPanel onAddClip={handleAddClip}/>
+                </TabsContent>
+                <TabsContent value="text" className="flex-1 overflow-y-auto p-4">
+                  <Button onClick={openTextEditor} className="w-full">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Text
+                  </Button>
+                </TabsContent>
+              </Tabs>
+            </SidebarContent>
+          </Sidebar>
+          <div className="flex-1 flex items-center justify-center bg-black p-4">
+              <Preview
+                clips={clips}
+                playhead={playhead}
+                isPlaying={isPlaying}
+                onUpdateClip={handleUpdateClip}
+                selectedClipId={selectedClip?.id}
+                onSelectClip={handleSelectClip}
+              />
+          </div>
+          <Sidebar side="right" className="w-80">
+            <SidebarContent>
+                <PropertiesPanel selectedClip={selectedClip} onUpdateClip={handleUpdateClip} onDeleteClip={handleDeleteClip} />
+            </SidebarContent>
+          </Sidebar>
+        </main>
+        <Timeline
               clips={clips}
-              playhead={playhead}
-              isPlaying={isPlaying}
-              onUpdateClip={handleUpdateClip}
-              selectedClipId={selectedClip?.id}
+              selectedClip={selectedClip}
               onSelectClip={handleSelectClip}
-            />
-        </div>
-        <div className="w-full bg-card border-t p-2">
-            <ScrollArea>
-                <div className="flex flex-row items-center gap-2">
-                    <ToolButton tool="ai" icon={<Smile />} label="Sticker" />
-                    <ToolButton tool="text" icon={<Text />} label="Text" onClick={openTextEditor} />
-                    <ToolButton tool="split" icon={<Scissors />} label="Split" />
-                     <Button variant="ghost" className="flex flex-col h-auto p-2 gap-1" onClick={() => handleDeleteClip()}>
-                        <Trash2 />
-                        <span className="text-xs">Delete</span>
-                    </Button>
-                    <ToolButton tool="ai" icon={<Sparkles />} label="Enhance" />
-                    <ToolButton tool="ai" icon={<Crop />} label="Cutout" />
-                </div>
-                <ScrollBar orientation="horizontal" />
-            </ScrollArea>
-        </div>
-      </main>
-      <Timeline
-            clips={clips}
-            selectedClip={selectedClip}
-            onSelectClip={handleSelectClip}
-            playhead={playhead}
-            setPlayhead={setPlayhead}
-            isPlaying={isPlaying}
-            setIsPlaying={setIsPlaying}
-            onUpdateClip={handleUpdateClip}
-            onAddClip={handleAddClip}
-            totalDuration={totalDuration}
-        />
-        
-      <Sheet open={isTextEditorOpen} onOpenChange={setIsTextEditorOpen}>
-          <SheetContent side="bottom" className="h-[90vh] bg-black text-white border-t border-gray-800 flex flex-col p-0">
-            <SheetHeader className="p-4 border-b border-gray-800">
-              <SheetTitle className="text-white">Text Editor</SheetTitle>
-            </SheetHeader>
-             {selectedClip?.type === 'text' && (
-                <TextEditor
-                    clip={selectedClip}
-                    onUpdateClip={handleUpdateClip}
-                    onClose={handleTextEditorClose}
-                />
-             )}
-          </SheetContent>
-      </Sheet>
-    </div>
+              playhead={playhead}
+              setPlayhead={setPlayhead}
+              isPlaying={isPlaying}
+              setIsPlaying={setIsPlaying}
+              onUpdateClip={handleUpdateClip}
+              onAddClip={handleAddClip}
+              totalDuration={totalDuration}
+          />
+          
+        <Sheet open={isTextEditorOpen} onOpenChange={setIsTextEditorOpen}>
+            <SheetContent side="bottom" className="h-[90vh] bg-black text-white border-t border-gray-800 flex flex-col p-0">
+              <SheetHeader className="p-4 border-b border-gray-800">
+                <SheetTitle className="text-white">Text Editor</SheetTitle>
+              </SheetHeader>
+               {selectedClip?.type === 'text' && (
+                  <TextEditor
+                      clip={selectedClip}
+                      onUpdateClip={handleUpdateClip}
+                      onClose={handleTextEditorClose}
+                  />
+               )}
+            </SheetContent>
+        </Sheet>
+      </div>
+    </SidebarProvider>
   );
 }
