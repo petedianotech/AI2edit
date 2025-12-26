@@ -38,6 +38,9 @@ export default function Editor() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isTextEditorOpen, setIsTextEditorOpen] = useState(false);
   const { toast } = useToast();
+  
+  const totalDuration = Math.max(60, ...clips.map(c => c.start + c.duration)) + 5;
+
 
   useEffect(() => {
     let animationFrameId: number;
@@ -45,8 +48,8 @@ export default function Editor() {
       const startTime = performance.now() - playhead * 1000;
       const animate = () => {
         const newPlayhead = (performance.now() - startTime) / 1000;
-        setPlayhead(newPlayhead);
-        if (newPlayhead < 60) { // Assuming 60s total duration
+        if (newPlayhead < totalDuration) {
+          setPlayhead(newPlayhead);
           animationFrameId = requestAnimationFrame(animate);
         } else {
           setIsPlaying(false);
@@ -56,7 +59,7 @@ export default function Editor() {
       animationFrameId = requestAnimationFrame(animate);
     }
     return () => cancelAnimationFrame(animationFrameId);
-  }, [isPlaying, playhead]);
+  }, [isPlaying, totalDuration]);
 
 
   const handleAddClip = (newClip: Clip) => {
@@ -228,6 +231,7 @@ export default function Editor() {
             setIsPlaying={setIsPlaying}
             onUpdateClip={handleUpdateClip}
             onAddClip={handleAddClip}
+            totalDuration={totalDuration}
         />
         
       <Sheet open={isTextEditorOpen} onOpenChange={setIsTextEditorOpen}>

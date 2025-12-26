@@ -19,9 +19,9 @@ interface TimelineProps {
   setIsPlaying: (playing: boolean) => void;
   onUpdateClip: (clip: Clip) => void;
   onAddClip: (clip: Clip) => void;
+  totalDuration: number;
 }
 
-const TOTAL_DURATION = 60; // seconds
 const PIXELS_PER_SECOND = 50;
 
 const trackConfig = {
@@ -54,7 +54,7 @@ function getMediaDuration(file: File): Promise<number> {
     })
 }
 
-export default function Timeline({ clips, selectedClip, onSelectClip, playhead, setPlayhead, isPlaying, setIsPlaying, onAddClip }: TimelineProps) {
+export default function Timeline({ clips, selectedClip, onSelectClip, playhead, setPlayhead, isPlaying, setIsPlaying, onAddClip, totalDuration }: TimelineProps) {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -110,7 +110,7 @@ export default function Timeline({ clips, selectedClip, onSelectClip, playhead, 
 
   const renderRuler = () => {
     const markers = [];
-    for (let i = 0; i <= TOTAL_DURATION; i += 1) {
+    for (let i = 0; i <= totalDuration; i += 1) {
       const isMajor = i % 5 === 0;
       markers.push(
         <div
@@ -171,7 +171,7 @@ export default function Timeline({ clips, selectedClip, onSelectClip, playhead, 
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const newPlayhead = x / PIXELS_PER_SECOND;
-    setPlayhead(Math.max(0, Math.min(TOTAL_DURATION, newPlayhead)));
+    setPlayhead(Math.max(0, Math.min(totalDuration, newPlayhead)));
   };
 
   const handlePlayPause = () => {
@@ -198,7 +198,7 @@ export default function Timeline({ clips, selectedClip, onSelectClip, playhead, 
             </Button>
         </div>
         <ScrollArea className="flex-1 whitespace-nowrap">
-          <div className="relative" style={{ width: TOTAL_DURATION * PIXELS_PER_SECOND }}>
+          <div className="relative" style={{ width: totalDuration * PIXELS_PER_SECOND }}>
             <div className="h-8 border-b cursor-pointer" onClick={handleRulerClick}>
               {renderRuler()}
             </div>
