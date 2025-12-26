@@ -46,6 +46,10 @@ export default function DraggableResizableText({
     const textShadow = clip.textShadow
         ? `${clip.textShadow.offsetX}px ${clip.textShadow.offsetY}px ${clip.textShadow.blur}px ${clip.textShadow.color}`
         : 'none';
+        
+    const textOutline = clip.textOutline
+        ? `${clip.textOutline.width}px ${clip.textOutline.color}`
+        : undefined;
 
 
     return (
@@ -75,6 +79,8 @@ export default function DraggableResizableText({
                     color: clip.color,
                     textAlign: clip.textAlign,
                     textShadow: textShadow,
+                    // @ts-ignore - webkit-text-stroke is not in standard CSSProperties
+                    WebkitTextStroke: textOutline,
                     whiteSpace: 'nowrap'
                 }}
             >

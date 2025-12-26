@@ -23,4 +23,8 @@ export interface Clip {
     offsetX: number;
     offsetY: number;
   };
+  textOutline?: {
+    color: string;
+    width: number;
+  };
 }

@@ -128,9 +128,14 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
 
     const renderStyleTab = () => {
         const shadowEnabled = !!clip.textShadow;
+        const outlineEnabled = !!clip.textOutline;
         
         const handleShadowPropertyChange = (prop: string, value: any) => {
             handleUpdate({ textShadow: { ...clip.textShadow!, [prop]: value } });
+        };
+
+        const handleOutlinePropertyChange = (prop: string, value: any) => {
+            handleUpdate({ textOutline: { ...clip.textOutline!, [prop]: value } });
         };
         
         return (
@@ -146,7 +151,7 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
                     />
                 </div>
                 {shadowEnabled && clip.textShadow && (
-                    <div className="space-y-4">
+                    <div className="space-y-4 pl-4 border-l-2 border-gray-800">
                         <div>
                             <Label className="text-sm text-gray-400">Shadow Color</Label>
                              <ColorPicker
@@ -185,6 +190,38 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
                                     onValueChange={(v) => handleShadowPropertyChange('offsetY', v[0])}
                                 />
                                 <span className="text-sm w-8">{clip.textShadow.offsetY}</span>
+                             </div>
+                        </div>
+                    </div>
+                )}
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="outline-switch" className="text-sm text-gray-400">Text Outline</Label>
+                    <Switch
+                        id="outline-switch"
+                        checked={outlineEnabled}
+                        onCheckedChange={(checked) => handleUpdate({
+                            textOutline: checked ? { color: '#000000', width: 2 } : undefined
+                        })}
+                    />
+                </div>
+                 {outlineEnabled && clip.textOutline && (
+                    <div className="space-y-4 pl-4 border-l-2 border-gray-800">
+                        <div>
+                            <Label className="text-sm text-gray-400">Outline Color</Label>
+                             <ColorPicker
+                                selectedColor={clip.textOutline.color}
+                                onColorChange={(color) => handleOutlinePropertyChange('color', color)}
+                            />
+                        </div>
+                        <div className="space-y-4">
+                             <Label className="text-sm text-gray-400">Width</Label>
+                             <div className="flex items-center gap-4">
+                                <Slider
+                                    min={0} max={10} step={1}
+                                    value={[clip.textOutline.width]}
+                                    onValueChange={(v) => handleOutlinePropertyChange('width', v[0])}
+                                />
+                                <span className="text-sm w-8">{clip.textOutline.width}</span>
                              </div>
                         </div>
                     </div>
