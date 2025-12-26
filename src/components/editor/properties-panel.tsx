@@ -2,7 +2,7 @@
 
 import type { Clip } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Info, Trash2 } from 'lucide-react';
+import { Info, Trash2, Edit } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
@@ -28,13 +28,19 @@ interface PropertiesPanelProps {
   selectedClip: Clip | null;
   onUpdateClip: (clip: Clip) => void;
   onDeleteClip: (clipId: string) => void;
+  onOpenTextEditor: () => void;
 }
 
-export default function PropertiesPanel({ selectedClip, onUpdateClip, onDeleteClip }: PropertiesPanelProps) {
+export default function PropertiesPanel({ selectedClip, onUpdateClip, onDeleteClip, onOpenTextEditor }: PropertiesPanelProps) {
+  // The key is used to force re-mount the component when the selected clip changes.
+  // This is important because we are managing the clip's state internally in this component
+  // for real-time updates without lagging the main editor state.
+  const [key, setKey] = useState(0);
   const [clip, setClip] = useState<Clip | null>(selectedClip);
 
   useEffect(() => {
     setClip(selectedClip);
+    setKey(prev => prev + 1);
   }, [selectedClip]);
   
   const handleUpdate = (props: Partial<Clip>) => {
@@ -48,7 +54,7 @@ export default function PropertiesPanel({ selectedClip, onUpdateClip, onDeleteCl
   const renderContent = () => {
     if (clip) {
       return (
-        <div className="p-4">
+        <div className="p-4" key={key}>
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -68,11 +74,11 @@ export default function PropertiesPanel({ selectedClip, onUpdateClip, onDeleteCl
               </div>
               <div className="space-y-2">
                 <Label>Start</Label>
-                <Input type="number" value={clip.start.toFixed(2)} onChange={(e) => handleUpdate({ start: parseFloat(e.target.value) })} step="0.1" />
+                <Input type="number" defaultValue={clip.start.toFixed(2)} onChange={(e) => handleUpdate({ start: parseFloat(e.target.value) })} step="0.1" />
               </div>
               <div className="space-y-2">
                 <Label>Duration</Label>
-                <Input type="number" value={clip.duration.toFixed(2)} onChange={(e) => handleUpdate({ duration: parseFloat(e.target.value) })} step="0.1" />
+                <Input type="number" defaultValue={clip.duration.toFixed(2)} onChange={(e) => handleUpdate({ duration: parseFloat(e.target.value) })} step="0.1" />
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Track:</span>
@@ -86,25 +92,30 @@ export default function PropertiesPanel({ selectedClip, onUpdateClip, onDeleteCl
                         min={0}
                         max={1}
                         step={0.05}
-                        value={[clip.volume ?? 1]}
+                        defaultValue={[clip.volume ?? 1]}
                         onValueChange={(value) => handleUpdate({ volume: value[0]})}
                     />
                 </div>
               )}
                {clip.type === 'text' && (
+                <>
+                <Button variant="outline" size="sm" className="w-full mt-4" onClick={onOpenTextEditor}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Open Full Editor
+                </Button>
                 <div className="space-y-6 pt-4">
                   <div className="space-y-2">
                     <Label htmlFor="text-content">Text Content</Label>
                     <Textarea
                         id="text-content"
-                        value={clip.text ?? ''}
+                        defaultValue={clip.text ?? ''}
                         onChange={(e) => handleUpdate({ text: e.target.value })}
                         rows={3}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="font-family">Font</Label>
-                     <Select value={clip.fontFamily} onValueChange={(value) => handleUpdate({ fontFamily: value })}>
+                     <Select defaultValue={clip.fontFamily} onValueChange={(value) => handleUpdate({ fontFamily: value })}>
                         <SelectTrigger id="font-family">
                             <SelectValue placeholder="Select a font" />
                         </SelectTrigger>
@@ -121,7 +132,7 @@ export default function PropertiesPanel({ selectedClip, onUpdateClip, onDeleteCl
                          min={12}
                          max={128}
                          step={2}
-                         value={[clip.fontSize ?? 48]}
+                         defaultValue={[clip.fontSize ?? 48]}
                          onValueChange={(value) => handleUpdate({ fontSize: value[0] })}
                      />
                    </div>
@@ -129,12 +140,13 @@ export default function PropertiesPanel({ selectedClip, onUpdateClip, onDeleteCl
                      <Label>Color</Label>
                      <Input
                          type="color"
-                         value={clip.color ?? '#FFFFFF'}
+                         defaultValue={clip.color ?? '#FFFFFF'}
                          onChange={(e) => handleUpdate({ color: e.target.value })}
                          className="w-full h-10 p-1"
                      />
                    </div>
                 </div>
+                </>
               )}
                <Button variant="destructive" size="sm" className="w-full mt-6" onClick={() => onDeleteClip(clip.id)}>
                 <Trash2 className="mr-2 h-4 w-4" />

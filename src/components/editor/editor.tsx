@@ -12,24 +12,13 @@ import {
   Upload,
   Plus,
   Text,
-  Scissors,
-  Trash2,
-  Smile,
-  Sparkles,
-  Crop,
-  X,
-  Check,
-  Palette,
-  Type as TypeIcon,
-  AlignLeft,
 } from 'lucide-react';
-import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { Button } from '../ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import AiTools from './ai-tools';
 import UploadPanel from './upload-panel';
 import PropertiesPanel from './properties-panel';
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, SidebarTrigger } from '../ui/sidebar';
+import { Sidebar, SidebarContent, SidebarProvider } from '../ui/sidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 
@@ -93,7 +82,9 @@ export default function Editor() {
 
     setSelectedClip(clip);
     if (clip?.type === 'text') {
-        setIsTextEditorOpen(true);
+        // If we select a text clip, don't automatically open the full editor
+        // but ensure the properties panel shows the text options.
+        // setIsTextEditorOpen(true); 
     }
   }
 
@@ -185,7 +176,7 @@ export default function Editor() {
       }
     }
     setIsTextEditorOpen(false);
-    setSelectedClip(null);
+    // We don't null out selected clip so the properties panel stays populated
   }
 
   return (
@@ -193,7 +184,7 @@ export default function Editor() {
       <div className="flex h-screen w-full flex-col bg-background text-foreground">
         <Header clips={clips}/>
         <main className="flex-1 flex overflow-hidden">
-          <Sidebar side="left" className="w-80">
+          <Sidebar side="left">
             <SidebarContent>
               <Tabs defaultValue="ai" className="h-full flex flex-col">
                 <TabsList className="w-full">
@@ -226,9 +217,9 @@ export default function Editor() {
                 onSelectClip={handleSelectClip}
               />
           </div>
-          <Sidebar side="right" className="w-80">
+          <Sidebar side="right">
             <SidebarContent>
-                <PropertiesPanel selectedClip={selectedClip} onUpdateClip={handleUpdateClip} onDeleteClip={handleDeleteClip} />
+                <PropertiesPanel selectedClip={selectedClip} onUpdateClip={handleUpdateClip} onDeleteClip={handleDeleteClip} onOpenTextEditor={openTextEditor}/>
             </SidebarContent>
           </Sidebar>
         </main>
