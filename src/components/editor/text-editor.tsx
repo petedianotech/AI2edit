@@ -3,9 +3,11 @@ import { useState, useEffect } from 'react';
 import type { Clip } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { X, Check, Type, Palette, AlignLeft, Keyboard } from 'lucide-react';
+import { X, Check, Type, Palette, CaseSensitive } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ColorPicker from './color-picker';
+import { Slider } from '../ui/slider';
+import { Label } from '../ui/label';
 
 const fontFamilies = [
     { name: 'Inter', value: 'Inter, sans-serif' },
@@ -22,6 +24,7 @@ interface TextEditorProps {
 
 export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorProps) {
     const [originalClip, setOriginalClip] = useState(clip);
+    const [activeTab, setActiveTab] = useState('text');
 
     useEffect(() => {
         // Store the initial state of the clip when the editor opens
@@ -59,20 +62,36 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
     );
 
     const renderFontTab = () => (
-        <div className="p-4 space-y-4">
-            <div className="text-sm text-gray-400 mb-2">Select Font</div>
-            <div className="flex flex-wrap gap-2">
-                {fontFamilies.map(font => (
-                    <Button 
-                        key={font.value}
-                        variant={clip.fontFamily === font.value ? 'secondary' : 'ghost'}
-                        onClick={() => handleUpdate({ fontFamily: font.value })}
-                        style={{fontFamily: font.value}}
-                        className="flex-grow"
-                    >
-                        {font.name}
-                    </Button>
-                ))}
+        <div className="p-4 space-y-6">
+            <div className="space-y-2">
+                <div className="text-sm text-gray-400 mb-2">Select Font</div>
+                <div className="grid grid-cols-2 gap-2">
+                    {fontFamilies.map(font => (
+                        <Button 
+                            key={font.value}
+                            variant={clip.fontFamily === font.value ? 'secondary' : 'ghost'}
+                            onClick={() => handleUpdate({ fontFamily: font.value })}
+                            style={{fontFamily: font.value}}
+                            className="flex-grow"
+                        >
+                            {font.name}
+                        </Button>
+                    ))}
+                </div>
+            </div>
+            <div className="space-y-4">
+                <Label className="text-sm text-gray-400">Font Size</Label>
+                <div className="flex items-center gap-4">
+                    <CaseSensitive className="w-5 h-5" />
+                    <Slider
+                        min={12}
+                        max={128}
+                        step={2}
+                        value={[clip.fontSize ?? 48]}
+                        onValueChange={(value) => handleUpdate({ fontSize: value[0] })}
+                    />
+                    <span className="text-sm w-8">{clip.fontSize}</span>
+                </div>
             </div>
         </div>
     );
@@ -84,10 +103,8 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
                     <X />
                 </Button>
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon"><Keyboard/></Button>
-                    <Button variant="ghost" size="icon"><Palette /></Button>
-                    <Button variant="ghost" size="icon"><Type /></Button>
-                    <Button variant="ghost" size="icon"><AlignLeft /></Button>
+                    <Button variant={activeTab === 'text' ? 'secondary' : 'ghost'} size="icon" onClick={() => setActiveTab('text')}><Palette/></Button>
+                    <Button variant={activeTab === 'font' ? 'secondary' : 'ghost'} size="icon" onClick={() => setActiveTab('font')}><Type /></Button>
                 </div>
                 <Button variant="ghost" size="icon" onClick={handleSave}>
                     <Check />
@@ -95,19 +112,15 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
             </header>
             
             <div className="flex-1 overflow-y-auto">
-                <Tabs defaultValue="text" className="w-full">
-                    <TabsList className="w-full justify-start rounded-none bg-black px-4 border-b border-gray-800">
-                        <TabsTrigger value="text" className="text-xs px-2">TEXT</TabsTrigger>
-                        <TabsTrigger value="border" className="text-xs px-2">BORDER</TabsTrigger>
-                        <TabsTrigger value="shadow" className="text-xs px-2">SHADOW</TabsTrigger>
-                        <TabsTrigger value="glow" className="text-xs px-2">GLOW</TabsTrigger>
-                        <TabsTrigger value="label" className="text-xs px-2">LABEL</TabsTrigger>
-                        <TabsTrigger value="opacity" className="text-xs px-2">OPACITY</TabsTrigger>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="hidden">
+                        <TabsTrigger value="text">Text</TabsTrigger>
+                        <TabsTrigger value="font">Font</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="text">
+                    <TabsContent value="text" forceMount>
                         {renderTextTab()}
                     </TabsContent>
-                    <TabsContent value="font">
+                    <TabsContent value="font" forceMount>
                         {renderFontTab()}
                     </TabsContent>
                 </Tabs>
