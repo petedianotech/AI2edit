@@ -13,7 +13,7 @@ const initialClips: Clip[] = [
   { id: '1', type: 'video', name: 'Nature Sunset', start: 0, duration: 5, track: 'video', volume: 1 },
   { id: '2', type: 'video', name: 'City Skyline', start: 5, duration: 7, track: 'video', volume: 1 },
   { id: '3', type: 'audio', name: 'Uplifting Music', start: 0, duration: 12, track: 'audio1', volume: 0.5 },
-  { id: '4', type: 'text', name: 'Hello World', start: 1, duration: 3, track: 'video', text: 'Hello World!' },
+  { id: '4', type: 'text', name: 'Hello World', start: 1, duration: 3, track: 'video', text: 'Hello World!', fontSize: 48, color: '#FFFFFF', fontFamily: 'Inter' },
 ];
 
 export default function Editor() {
@@ -122,6 +122,7 @@ export default function Editor() {
             onSelectClip={handleSelectClip}
             playhead={playhead}
             setPlayhead={setPlayhead}
+            onAddClip={handleAddClip}
           />
         </main>
       </div>

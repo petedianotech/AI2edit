@@ -12,7 +12,20 @@ import { Label } from '../ui/label';
 import { Slider } from '../ui/slider';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
+const fontFamilies = [
+    { name: 'Inter', value: 'Inter, sans-serif' },
+    { name: 'Roboto', value: 'Roboto, sans-serif' },
+    { name: 'Lobster', value: 'Lobster, cursive' },
+    { name: 'Courier Prime', value: '"Courier Prime", monospace' },
+];
 
 interface PropertiesPanelProps {
   activeTool: Tool;
@@ -20,86 +33,6 @@ interface PropertiesPanelProps {
   onAddClip: (clip: Clip) => void;
   onUpdateClip: (clip: Clip) => void;
   onDeleteClip: (clipId: string) => void;
-}
-
-function UploadPanel({ onAddClip }: { onAddClip: (clip: Clip) => void }) {
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const { toast } = useToast();
-
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-
-        const isVideo = file.type.startsWith('video/');
-        const isAudio = file.type.startsWith('audio/');
-
-        if (!isVideo && !isAudio) {
-            toast({
-                title: 'Unsupported file type',
-                description: 'Please upload a video or audio file.',
-                variant: 'destructive',
-            });
-            return;
-        }
-
-        const media = document.createElement(isVideo ? 'video' : 'audio') as HTMLVideoElement | HTMLAudioElement;
-        media.preload = 'metadata';
-        media.onloadedmetadata = () => {
-            window.URL.revokeObjectURL(media.src);
-            const newClip: Clip = {
-                id: `${isVideo ? 'video' : 'audio'}-${Date.now()}`,
-                type: isVideo ? 'video' : 'audio',
-                name: file.name,
-                start: 0,
-                duration: media.duration,
-                track: isVideo ? 'video' : 'audio1',
-                volume: 1,
-            };
-            onAddClip(newClip);
-            toast({
-                title: 'Upload successful',
-                description: `${file.name} has been added to the timeline.`,
-            });
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-        };
-        media.onerror = () => {
-            toast({
-                title: 'Error reading file',
-                description: 'Could not determine media duration.',
-                variant: 'destructive',
-            });
-        };
-        media.src = URL.createObjectURL(file);
-    };
-
-    return (
-        <div className="p-4">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Upload className="w-5 h-5 text-primary" />
-                        Upload Media
-                    </CardTitle>
-                    <CardDescription>Select a video or audio file to add to your project.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        className="hidden"
-                        accept="video/*,audio/*"
-                    />
-                    <Button className="w-full" onClick={() => fileInputRef.current?.click()}>
-                        <FileVideo className="mr-2 h-4 w-4" />
-                        Choose Media File
-                    </Button>
-                </CardContent>
-            </Card>
-        </div>
-    )
 }
 
 function TextPanel({ onAddClip }: { onAddClip: (clip: Clip) => void }) {
@@ -113,6 +46,9 @@ function TextPanel({ onAddClip }: { onAddClip: (clip: Clip) => void }) {
       duration: 5,
       track: 'video',
       text: 'Your Text Here',
+      fontSize: 48,
+      color: '#FFFFFF',
+      fontFamily: 'Inter, sans-serif'
     };
     onAddClip(newClip);
     toast({
@@ -149,29 +85,17 @@ export default function PropertiesPanel({ activeTool, selectedClip, onAddClip, o
     setClip(selectedClip);
   }, [selectedClip]);
   
-  const handleVolumeChange = (value: number[]) => {
+  const handleUpdate = (props: Partial<Clip>) => {
     if (clip) {
-      const updatedClip = { ...clip, volume: value[0] };
-      setClip(updatedClip);
-      onUpdateClip(updatedClip);
+        const updatedClip = { ...clip, ...props };
+        setClip(updatedClip);
+        onUpdateClip(updatedClip);
     }
-  };
-
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (clip) {
-      const updatedClip = { ...clip, text: e.target.value };
-      setClip(updatedClip);
-      onUpdateClip(updatedClip);
-    }
-  };
+  }
 
   const renderContent = () => {
     if (activeTool === 'ai') {
       return <AiTools onAddClip={onAddClip} />;
-    }
-
-    if (activeTool === 'upload') {
-        return <UploadPanel onAddClip={onAddClip} />;
     }
     
     if (activeTool === 'text') {
@@ -219,22 +143,56 @@ export default function PropertiesPanel({ activeTool, selectedClip, onAddClip, o
                         max={1}
                         step={0.05}
                         value={[clip.volume ?? 1]}
-                        onValueChange={handleVolumeChange}
+                        onValueChange={(value) => handleUpdate({ volume: value[0]})}
                     />
                 </div>
               )}
                {clip.type === 'text' && (
-                <div className="space-y-2 pt-2">
-                  <Label htmlFor="text-content">Text Content</Label>
-                  <Textarea
-                    id="text-content"
-                    value={clip.text ?? ''}
-                    onChange={handleTextChange}
-                    rows={4}
-                  />
+                <div className="space-y-6 pt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="text-content">Text Content</Label>
+                    <Textarea
+                        id="text-content"
+                        value={clip.text ?? ''}
+                        onChange={(e) => handleUpdate({ text: e.target.value })}
+                        rows={3}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="font-family">Font</Label>
+                     <Select value={clip.fontFamily} onValueChange={(value) => handleUpdate({ fontFamily: value })}>
+                        <SelectTrigger id="font-family">
+                            <SelectValue placeholder="Select a font" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {fontFamilies.map(font => (
+                                <SelectItem key={font.value} value={font.value} style={{fontFamily: font.value}}>{font.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                  </div>
+                   <div className="space-y-2">
+                     <Label>Font Size</Label>
+                     <Slider
+                         min={12}
+                         max={128}
+                         step={2}
+                         value={[clip.fontSize ?? 48]}
+                         onValueChange={(value) => handleUpdate({ fontSize: value[0] })}
+                     />
+                   </div>
+                   <div className="space-y-2">
+                     <Label>Color</Label>
+                     <Input
+                         type="color"
+                         value={clip.color ?? '#FFFFFF'}
+                         onChange={(e) => handleUpdate({ color: e.target.value })}
+                         className="w-full h-10 p-1"
+                     />
+                   </div>
                 </div>
               )}
-               <Button variant="destructive" size="sm" className="w-full mt-4" onClick={() => onDeleteClip(clip.id)}>
+               <Button variant="destructive" size="sm" className="w-full mt-6" onClick={() => onDeleteClip(clip.id)}>
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete Clip
               </Button>

@@ -11,4 +11,7 @@ export interface Clip {
   volume?: number;
   // Text specific
   text?: string;
+  fontSize?: number;
+  color?: string;
+  fontFamily?: string;
 }
