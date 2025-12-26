@@ -8,6 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Wand2, Mic, Captions, Film, Loader2 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 import { convertTextToSpeech } from '@/ai/flows/convert-text-to-speech';
 import { generateCaptionsFromVideo } from '@/ai/flows/generate-captions-from-video';
@@ -19,10 +26,19 @@ interface AiToolsProps {
   onAddClip: (clip: Clip) => void;
 }
 
+const ttsVoices = [
+    { name: 'Professional', id: 'Algenib' },
+    { name: 'Friendly', id: 'Achernar' },
+    { name: 'Deep', id: 'Antares' },
+    { name: 'Calm', id: 'Canopus' },
+    { name: 'Upbeat', id: 'Deneb' },
+];
+
 export default function AiTools({ onAddClip }: AiToolsProps) {
   const { toast } = useToast();
   const [ttsLoading, setTtsLoading] = useState(false);
   const [ttsText, setTtsText] = useState('Create professional videos in minutes with MotionSpeak. Our AI tools make editing simple and fun.');
+  const [ttsVoice, setTtsVoice] = useState(ttsVoices[0].id);
   const [ttsAudio, setTtsAudio] = useState<string | null>(null);
 
   const [captionLoading, setCaptionLoading] = useState(false);
@@ -41,7 +57,7 @@ export default function AiTools({ onAddClip }: AiToolsProps) {
     setTtsLoading(true);
     setTtsAudio(null);
     try {
-      const result = await convertTextToSpeech(ttsText);
+      const result = await convertTextToSpeech({ text: ttsText, voice: ttsVoice });
       setTtsAudio(result.media);
       onAddClip({
         id: `tts-${Date.now()}`,
@@ -129,6 +145,19 @@ export default function AiTools({ onAddClip }: AiToolsProps) {
             <TabsContent value="tts" className="space-y-4 pt-4">
                 <h4 className="font-semibold">Text-to-Speech</h4>
                 <Textarea placeholder="Enter text for narration..." value={ttsText} onChange={(e) => setTtsText(e.target.value)} rows={5} />
+                <div className="space-y-2">
+                    <Label htmlFor="tts-voice">Voice</Label>
+                    <Select value={ttsVoice} onValueChange={setTtsVoice}>
+                        <SelectTrigger id="tts-voice">
+                            <SelectValue placeholder="Select a voice" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {ttsVoices.map(voice => (
+                                <SelectItem key={voice.id} value={voice.id}>{voice.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
                 <Button onClick={handleTts} disabled={ttsLoading} className="w-full">
                 {ttsLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Generate Audio
