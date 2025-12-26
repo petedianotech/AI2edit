@@ -7,6 +7,7 @@ export interface Clip {
   start: number;
   duration: number;
   track: 'video' | 'audio1';
+  src?: string; // Path to the media file for video/audio
   // Video/Audio specific
   volume?: number;
   // Text specific

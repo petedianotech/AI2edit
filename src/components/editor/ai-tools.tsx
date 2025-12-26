@@ -26,12 +26,27 @@ interface AiToolsProps {
   onAddClip: (clip: Clip) => void;
 }
 
+function getAudioDuration(dataUri: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+        const audio = new Audio(dataUri);
+        audio.addEventListener('loadedmetadata', () => {
+            resolve(audio.duration);
+        });
+        audio.addEventListener('error', (e) => {
+            reject('Failed to load audio metadata');
+        })
+    })
+}
+
 const ttsVoices = [
     { name: 'Professional', id: 'Algenib' },
     { name: 'Friendly', id: 'Achernar' },
     { name: 'Deep', id: 'Antares' },
     { name: 'Calm', id: 'Canopus' },
     { name: 'Upbeat', id: 'Deneb' },
+    { name: 'Playful', id: 'Hadar' },
+    { name: 'Youthful', id: 'Rigel' },
+    { name: 'Funny', id: 'Spica' },
 ];
 
 export default function AiTools({ onAddClip }: AiToolsProps) {
@@ -59,13 +74,15 @@ export default function AiTools({ onAddClip }: AiToolsProps) {
     try {
       const result = await convertTextToSpeech({ text: ttsText, voice: ttsVoice });
       setTtsAudio(result.media);
+      const duration = await getAudioDuration(result.media);
       onAddClip({
         id: `tts-${Date.now()}`,
         type: 'audio',
         name: `TTS: ${ttsText.substring(0, 15)}...`,
         start: 0,
-        duration: 5, // Placeholder duration
-        track: 'audio1'
+        duration: duration,
+        track: 'audio1',
+        src: result.media
       });
       toast({ title: 'Success', description: 'Audio generated and added to timeline.' });
     } catch (error) {
