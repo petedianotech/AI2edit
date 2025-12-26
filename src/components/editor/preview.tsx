@@ -1,10 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, FastForward, Rewind, Volume2, Maximize } from 'lucide-react';
 import type { Clip } from '@/lib/types';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 interface PreviewProps {
     clips: Clip[];
@@ -12,30 +12,31 @@ interface PreviewProps {
 }
 
 export default function Preview({ clips, playhead }: PreviewProps) {
-  const previewImage = PlaceHolderImages.find(img => img.id === 'video-preview');
-
   const visibleTextClips = clips.filter(clip => 
     clip.type === 'text' && 
     playhead >= clip.start && 
     playhead < (clip.start + clip.duration)
   );
 
-  const videoClip = clips.find(clip => 
+  const activeVideoClip = clips.find(clip => 
     clip.type === 'video' && 
     playhead >= clip.start && 
     playhead < (clip.start + clip.duration)
   );
+  
+  const videoClipImage = activeVideoClip ? PlaceHolderImages.find(img => img.id === activeVideoClip.name) : null;
+
 
   return (
     <div className="w-full max-w-[360px] aspect-[9/16] bg-card rounded-lg shadow-lg overflow-hidden flex flex-col mx-auto">
       <div className="flex-1 relative bg-black">
-        {previewImage && (
+        {videoClipImage && (
           <Image
-            src={previewImage.imageUrl}
-            alt={previewImage.description}
+            src={videoClipImage.imageUrl}
+            alt={videoClipImage.description}
             fill
             className="object-cover"
-            data-ai-hint={previewImage.imageHint}
+            data-ai-hint={videoClipImage.imageHint}
           />
         )}
         <div className="absolute inset-0 flex items-center justify-center p-4">
