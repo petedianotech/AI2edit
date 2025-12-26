@@ -64,7 +64,6 @@ export default function Header({ clips = [] }: HeaderProps) {
     <header className="shrink-0 bg-card border-b">
       <div className="flex h-14 items-center justify-between px-4 lg:px-6">
         <div className="flex items-center gap-2">
-            <SidebarTrigger side="left" />
             <Logo className="w-8 h-8" />
             <h1 className="font-semibold text-lg">MotionSpeak</h1>
         </div>

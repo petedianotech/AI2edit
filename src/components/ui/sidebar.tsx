@@ -7,7 +7,7 @@ import { PanelLeft, PanelRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button, type ButtonProps } from '@/components/ui/button';
 
-const sidebarVariants = cva('bg-card text-card-foreground transition-all', {
+const sidebarVariants = cva('bg-card text-card-foreground', {
   variants: {
     side: {
       left: 'border-r',
@@ -21,25 +21,20 @@ const sidebarVariants = cva('bg-card text-card-foreground transition-all', {
 
 interface SidebarProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof sidebarVariants> {
-        width?: string;
-    }
+    VariantProps<typeof sidebarVariants> {}
 
 const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
-  ({ side = 'left', className, width = '20rem', children, ...props }, ref) => {
+  ({ side, className, ...props }, ref) => {
     return (
       <aside
         ref={ref}
         className={cn(
-          'w-[var(--sidebar-width)]',
+          'w-80', // Fixed width for desktop
           sidebarVariants({ side }),
           className
         )}
-        style={{ '--sidebar-width': width } as React.CSSProperties}
         {...props}
-      >
-        {children}
-      </aside>
+      />
     );
   }
 );

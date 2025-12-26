@@ -18,9 +18,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import AiTools from './ai-tools';
 import UploadPanel from './upload-panel';
 import PropertiesPanel from './properties-panel';
-import { Sidebar, SidebarContent, SidebarTrigger } from '../ui/sidebar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-
+import { Sidebar, SidebarTrigger } from '../ui/sidebar';
 
 const initialClips: Clip[] = [];
 
@@ -31,6 +29,9 @@ export default function Editor() {
   const [playhead, setPlayhead] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isTextEditorOpen, setIsTextEditorOpen] = useState(false);
+  const [isAiPanelOpen, setIsAiPanelOpen] = useState(false);
+  const [isUploadPanelOpen, setIsUploadPanelOpen] = useState(false);
+
   const { toast } = useToast();
   
   const totalDuration = Math.max(60, ...clips.map(c => c.start + c.duration)) + 5;
@@ -182,47 +183,28 @@ export default function Editor() {
     // We don't null out selected clip so the properties panel stays populated
   }
 
-  const LeftSidebarContent = () => (
-    <Tabs defaultValue="ai" className="h-full flex flex-col">
-        <TabsList className="w-full justify-around rounded-none">
-            <TabsTrigger value="ai" className="flex-1 rounded-none"><Wand2 /> AI</TabsTrigger>
-            <TabsTrigger value="upload" className="flex-1 rounded-none"><Upload /> Media</TabsTrigger>
-            <TabsTrigger value="text" className="flex-1 rounded-none"><Text /> Text</TabsTrigger>
-        </TabsList>
-        <TabsContent value="ai" className="flex-1 overflow-y-auto">
-            <AiTools onAddClip={handleAddClip} />
-        </TabsContent>
-        <TabsContent value="upload" className="flex-1 overflow-y-auto">
-            <UploadPanel onAddClip={handleAddClip}/>
-        </TabsContent>
-        <TabsContent value="text" className="flex-1 overflow-y-auto p-4">
-            <Button onClick={openTextEditor} className="w-full">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Text
-            </Button>
-        </TabsContent>
-    </Tabs>
-  );
+  const BottomToolbar = () => (
+    <div className="flex items-center justify-around bg-card border-t p-2">
+      <Button variant="ghost" className="flex flex-col h-auto" onClick={() => setIsAiPanelOpen(true)}>
+        <Wand2 className="w-6 h-6" />
+        <span className="text-xs">AI Tools</span>
+      </Button>
+      <Button variant="ghost" className="flex flex-col h-auto" onClick={() => setIsUploadPanelOpen(true)}>
+        <Upload className="w-6 h-6" />
+        <span className="text-xs">Media</span>
+      </Button>
+      <Button variant="ghost" className="flex flex-col h-auto" onClick={openTextEditor}>
+        <Text className="w-6 h-6" />
+        <span className="text-xs">Text</span>
+      </Button>
+    </div>
+  )
 
   return (
     <div className="flex h-screen w-full flex-col bg-background text-foreground">
         <Header />
         <main className="flex-1 flex overflow-hidden">
-          <div className="md:hidden">
-              <Sheet>
-                  <SheetTrigger asChild>
-                      <SidebarTrigger side="left" />
-                  </SheetTrigger>
-                  <SheetContent side="left" className="p-0 w-80">
-                      <LeftSidebarContent />
-                  </SheetContent>
-              </Sheet>
-          </div>
-          <Sidebar side="left" className="hidden md:flex flex-col p-0">
-              <LeftSidebarContent />
-          </Sidebar>
-
-          <div className="flex-1 flex items-center justify-center bg-[#111111] p-4">
+          <div className="flex-1 flex flex-col items-center justify-center bg-[#111111] p-4 relative">
               <Preview
                 clips={clips}
                 playhead={playhead}
@@ -231,6 +213,7 @@ export default function Editor() {
                 selectedClipId={selectedClip?.id}
                 onSelectClip={handleSelectClip}
               />
+              <BottomToolbar />
           </div>
           
           <div className="md:hidden">
@@ -274,6 +257,29 @@ export default function Editor() {
                )}
             </SheetContent>
         </Sheet>
+        
+        <Sheet open={isAiPanelOpen} onOpenChange={setIsAiPanelOpen}>
+            <SheetContent side="bottom" className="h-[90vh] bg-card text-foreground border-t flex flex-col p-0">
+               <SheetHeader className="p-4 border-b">
+                <SheetTitle>AI Tools</SheetTitle>
+              </SheetHeader>
+              <div className="flex-1 overflow-y-auto">
+                <AiTools onAddClip={handleAddClip} />
+              </div>
+            </SheetContent>
+        </Sheet>
+
+        <Sheet open={isUploadPanelOpen} onOpenChange={setIsUploadPanelOpen}>
+            <SheetContent side="bottom" className="h-[90vh] bg-card text-foreground border-t flex flex-col p-0">
+               <SheetHeader className="p-4 border-b">
+                <SheetTitle>Upload Media</SheetTitle>
+              </SheetHeader>
+              <div className="flex-1 overflow-y-auto">
+                <UploadPanel onAddClip={handleAddClip}/>
+              </div>
+            </SheetContent>
+        </Sheet>
+
       </div>
   );
 }
