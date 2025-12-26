@@ -24,10 +24,9 @@ import {
   Type as TypeIcon,
   AlignLeft,
 } from 'lucide-react';
-import { ScrollArea } from '../ui/scroll-area';
+import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { Button } from '../ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { ScrollBar } from '@/components/ui/scroll-area';
 
 
 const initialClips: Clip[] = [];
@@ -145,12 +144,14 @@ export default function Editor() {
     setActiveTool('select'); // Switch back to select tool
   }
   
-  const handleTextEditorClose = (save: boolean) => {
-    if (!save && selectedClip && clips.find(c => c.id === selectedClip.id) && selectedClip.text === 'Your Text Here') {
-      // If user closes without saving a new clip, remove it
-      const originalClip = clips.find(c => c.id === selectedClip.id)
-      if (originalClip && originalClip.text === 'Your Text Here' && originalClip.name === 'New Text') {
-          handleDeleteClip(selectedClip.id);
+  const handleTextEditorClose = (save: boolean, originalClip?: Clip) => {
+    if (!save) {
+      if (originalClip && clips.find(c => c.id === originalClip.id)) {
+        // Revert to original clip if user cancels
+        handleUpdateClip(originalClip);
+      } else if (selectedClip?.name === 'New Text') {
+        // If it was a new clip and user cancelled, delete it
+        handleDeleteClip(selectedClip.id);
       }
     }
     setIsTextEditorOpen(false);

@@ -17,42 +17,42 @@ const fontFamilies = [
 interface TextEditorProps {
     clip: Clip;
     onUpdateClip: (clip: Clip) => void;
-    onClose: (save: boolean) => void;
+    onClose: (save: boolean, originalClip?: Clip) => void;
 }
 
 export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorProps) {
-    const [localClip, setLocalClip] = useState<Clip>(clip);
+    const [originalClip, setOriginalClip] = useState(clip);
 
     useEffect(() => {
-        setLocalClip(clip);
-    }, [clip]);
+        // Store the initial state of the clip when the editor opens
+        setOriginalClip(clip);
+    }, []); // Empty dependency array ensures this runs only once on mount
+
 
     const handleUpdate = (props: Partial<Clip>) => {
-        const updatedClip = { ...localClip, ...props };
-        setLocalClip(updatedClip);
+        onUpdateClip({ ...clip, ...props });
     };
 
     const handleSave = () => {
-        onUpdateClip(localClip);
         onClose(true);
     };
 
     const handleCancel = () => {
-        // Revert changes by not calling onUpdateClip
-        onClose(false);
+        // Revert changes by passing the original clip back
+        onClose(false, originalClip);
     };
 
     const renderTextTab = () => (
         <div className="p-4 space-y-4">
             <Textarea 
-                value={localClip.text}
+                value={clip.text}
                 onChange={(e) => handleUpdate({ text: e.target.value })}
                 className="bg-gray-800 border-gray-700 text-white text-lg focus:ring-primary"
                 rows={3}
             />
              <div className="text-sm text-gray-400">Color</div>
              <ColorPicker
-                selectedColor={localClip.color || '#FFFFFF'}
+                selectedColor={clip.color || '#FFFFFF'}
                 onColorChange={(color) => handleUpdate({ color })}
             />
         </div>
@@ -65,7 +65,7 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
                 {fontFamilies.map(font => (
                     <Button 
                         key={font.value}
-                        variant={localClip.fontFamily === font.value ? 'secondary' : 'ghost'}
+                        variant={clip.fontFamily === font.value ? 'secondary' : 'ghost'}
                         onClick={() => handleUpdate({ fontFamily: font.value })}
                         style={{fontFamily: font.value}}
                         className="flex-grow"
