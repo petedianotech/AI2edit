@@ -24,19 +24,16 @@ export default function Preview({ clips, playhead }: PreviewProps) {
     playhead < (clip.start + clip.duration)
   );
   
-  const videoClipImage = activeVideoClip ? PlaceHolderImages.find(img => img.id === activeVideoClip.name) : null;
-
 
   return (
     <div className="w-full max-w-[360px] aspect-[9/16] bg-card rounded-lg shadow-lg overflow-hidden flex flex-col mx-auto">
       <div className="flex-1 relative bg-black">
-        {videoClipImage && (
+        {activeVideoClip && (
           <Image
-            src={videoClipImage.imageUrl}
-            alt={videoClipImage.description}
+            src={activeVideoClip.src!}
+            alt={activeVideoClip.name}
             fill
             className="object-cover"
-            data-ai-hint={videoClipImage.imageHint}
           />
         )}
         <div className="absolute inset-0 flex items-center justify-center p-4">

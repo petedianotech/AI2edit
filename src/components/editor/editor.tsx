@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import type { Clip, Tool } from '@/lib/types';
 import Header from './header';
-import Toolbar from './toolbar';
 import Preview from './preview';
 import Timeline from './timeline';
 import PropertiesPanel from './properties-panel';
@@ -11,8 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AiTools from './ai-tools';
 import UploadPanel from './upload-panel';
-import TextPanel from './text-panel';
-import { Wand2, Upload, Type } from 'lucide-react';
+import { Wand2, Upload } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 
 const initialClips: Clip[] = [];
@@ -99,11 +97,10 @@ export default function Editor() {
     <div className="flex h-screen w-full flex-col bg-background text-foreground">
       <Header clips={clips}/>
       <div className="flex flex-1 overflow-hidden">
-        <Toolbar activeTool={activeTool} setActiveTool={setActiveTool} />
         <main className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 overflow-hidden">
             <div className="lg:col-span-2 flex flex-col gap-4">
                 <div className="flex-1 flex items-center justify-center bg-card rounded-lg relative overflow-hidden">
-                    <Preview clips={clips} playhead={playhead} selectedClip={selectedClip} />
+                    <Preview clips={clips} playhead={playhead} />
                 </div>
                 <Timeline
                     clips={clips}
