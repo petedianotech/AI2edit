@@ -2,14 +2,17 @@
 
 import type { Clip } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { Video, Music, Type } from 'lucide-react';
-import React, { useState } from 'react';
+import { Video, Music, Type, Upload } from 'lucide-react';
+import React, { useRef, useState } from 'react';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Button } from '../ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface TimelineProps {
   clips: Clip[];
   selectedClip: Clip | null;
   onSelectClip: (clip: Clip | null) => void;
+  onAddClip: (clip: Clip) => void;
 }
 
 const TOTAL_DURATION = 60; // seconds
@@ -20,8 +23,41 @@ const trackConfig = {
   audio1: { icon: Music, label: 'Audio 1', bg: 'bg-accent/10', border: 'border-accent/50' },
 };
 
-export default function Timeline({ clips, selectedClip, onSelectClip }: TimelineProps) {
+export default function Timeline({ clips, selectedClip, onSelectClip, onAddClip }: TimelineProps) {
   const [playhead, setPlayhead] = useState(10); // in seconds
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.onloadedmetadata = () => {
+      window.URL.revokeObjectURL(video.src);
+      const newClip: Clip = {
+        id: `video-${Date.now()}`,
+        type: 'video',
+        name: file.name,
+        start: 0,
+        duration: video.duration,
+        track: 'video',
+      };
+      onAddClip(newClip);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    };
+    video.onerror = () => {
+      toast({
+        title: 'Error reading video',
+        description: 'Could not determine video duration.',
+        variant: 'destructive',
+      });
+    };
+    video.src = URL.createObjectURL(file);
+  };
 
   const renderRuler = () => {
     const markers = [];
@@ -51,14 +87,14 @@ export default function Timeline({ clips, selectedClip, onSelectClip }: Timeline
   };
 
   const renderTrack = (trackId: keyof typeof trackConfig) => (
-    <div className="relative h-16 bg-card border-b">
+    <div className="relative h-16 bg-card border-b" key={trackId}>
       {clips.filter(c => c.track === trackId).map(clip => (
         <div
           key={clip.id}
           className={cn(
             "absolute top-1/2 -translate-y-1/2 h-12 rounded-md overflow-hidden flex items-center px-2 cursor-pointer transition-all duration-200 ease-in-out",
             "bg-secondary hover:bg-secondary/80 border",
-            selectedClip?.id === clip.id ? "border-accent ring-2 ring-accent" : "border-border"
+            selectedClip?.id === clip.id ? "border-primary ring-2 ring-primary" : "border-border"
           )}
           style={{
             left: `${clip.start * PIXELS_PER_SECOND}px`,
@@ -77,6 +113,17 @@ export default function Timeline({ clips, selectedClip, onSelectClip }: Timeline
     <div className="h-[250px] bg-secondary/20 border-t flex flex-col">
       <div className="flex h-full">
         <div className="w-32 border-r p-2 flex flex-col gap-2">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept="video/*"
+          />
+          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+            <Upload className="mr-2" />
+            Upload
+          </Button>
           {Object.entries(trackConfig).map(([key, { icon: Icon, label, bg, border }]) => (
             <div key={key} className={cn("h-16 rounded-md flex items-center p-2 text-sm font-semibold", bg, border)}>
               <Icon className="w-4 h-4 mr-2" />
@@ -89,7 +136,7 @@ export default function Timeline({ clips, selectedClip, onSelectClip }: Timeline
             <div className="h-8 border-b">
               {renderRuler()}
             </div>
-            {Object.keys(trackConfig).map(key => React.cloneElement(renderTrack(key as keyof typeof trackConfig), { key }))}
+            {Object.keys(trackConfig).map(key => renderTrack(key as keyof typeof trackConfig))}
             <div
               className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10"
               style={{ left: `${playhead * PIXELS_PER_SECOND}px` }}

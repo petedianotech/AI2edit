@@ -1,4 +1,4 @@
-export type Tool = 'select' | 'trim' | 'text' | 'upload' | 'effects' | 'ai';
+export type Tool = 'select' | 'trim' | 'text' | 'effects' | 'ai';
 
 export interface Clip {
   id: string;

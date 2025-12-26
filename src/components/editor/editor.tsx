@@ -7,6 +7,7 @@ import Toolbar from './toolbar';
 import Preview from './preview';
 import Timeline from './timeline';
 import PropertiesPanel from './properties-panel';
+import { useToast } from '@/hooks/use-toast';
 
 const initialClips: Clip[] = [
   { id: '1', type: 'video', name: 'Nature Sunset', start: 0, duration: 5, track: 'video' },
@@ -19,6 +20,22 @@ export default function Editor() {
   const [activeTool, setActiveTool] = useState<Tool>('select');
   const [clips, setClips] = useState<Clip[]>(initialClips);
   const [selectedClip, setSelectedClip] = useState<Clip | null>(null);
+  const { toast } = useToast();
+
+  const handleAddClip = (newClip: Clip) => {
+    setClips(prev => [...prev, newClip]);
+    toast({
+        title: 'Upload successful',
+        description: `${newClip.name} has been added to the timeline.`,
+    });
+  }
+
+  const handleSelectClip = (clip: Clip | null) => {
+    if (activeTool !== 'select') {
+      setActiveTool('select');
+    }
+    setSelectedClip(clip);
+  }
 
   return (
     <div className="flex h-screen w-full flex-col bg-background text-foreground">
@@ -32,13 +49,14 @@ export default function Editor() {
           <Timeline
             clips={clips}
             selectedClip={selectedClip}
-            onSelectClip={setSelectedClip}
+            onSelectClip={handleSelectClip}
+            onAddClip={handleAddClip}
           />
         </main>
         <PropertiesPanel
           activeTool={activeTool}
           selectedClip={selectedClip}
-          onAddClip={(newClip) => setClips(prev => [...prev, newClip])}
+          onAddClip={handleAddClip}
         />
       </div>
     </div>
