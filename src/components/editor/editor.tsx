@@ -9,12 +9,7 @@ import Timeline from './timeline';
 import PropertiesPanel from './properties-panel';
 import { useToast } from '@/hooks/use-toast';
 
-const initialClips: Clip[] = [
-  { id: '1', type: 'video', name: 'Nature Sunset', start: 0, duration: 5, track: 'video', volume: 1 },
-  { id: '2', type: 'video', name: 'City Skyline', start: 5, duration: 7, track: 'video', volume: 1 },
-  { id: '3', type: 'audio', name: 'Uplifting Music', start: 0, duration: 12, track: 'audio1', volume: 0.5 },
-  { id: '4', type: 'text', name: 'Hello World', start: 1, duration: 3, track: 'video', text: 'Hello World!', fontSize: 48, color: '#FFFFFF', fontFamily: 'Inter' },
-];
+const initialClips: Clip[] = [];
 
 export default function Editor() {
   const [activeTool, setActiveTool] = useState<Tool>('select');
@@ -104,7 +99,7 @@ export default function Editor() {
         <main className="flex flex-1 flex-col overflow-hidden">
           <div className="flex flex-1 p-4 lg:p-6 overflow-auto relative">
             <div className="flex-1 flex items-center justify-center">
-              <Preview />
+              <Preview clips={clips} playhead={playhead} />
             </div>
             <div className="w-full max-w-sm">
                 <PropertiesPanel
