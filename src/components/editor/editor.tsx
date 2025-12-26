@@ -7,11 +7,10 @@ import Preview from './preview';
 import Timeline from './timeline';
 import PropertiesPanel from './properties-panel';
 import { useToast } from '@/hooks/use-toast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AiTools from './ai-tools';
 import UploadPanel from './upload-panel';
-import { Wand2, Upload, Plus } from 'lucide-react';
-import { ScrollArea } from '../ui/scroll-area';
+import { Wand2, Upload, Plus, Text, Scissors, Trash2 } from 'lucide-react';
+import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { Button } from '../ui/button';
 
 const initialClips: Clip[] = [];
@@ -56,9 +55,14 @@ export default function Editor() {
     }
   }
 
-  const handleDeleteClip = (clipId: string) => {
-    setClips(prev => prev.filter(c => c.id !== clipId));
-    if (selectedClip && selectedClip.id === clipId) {
+  const handleDeleteClip = (clipId?: string) => {
+    const idToDelete = clipId || selectedClip?.id;
+    if (!idToDelete) {
+        toast({title: 'No clip selected', description: 'Please select a clip to delete.', variant: 'destructive'})
+        return;
+    };
+    setClips(prev => prev.filter(c => c.id !== idToDelete));
+    if (selectedClip && selectedClip.id === idToDelete) {
         setSelectedClip(null);
     }
     toast({ title: 'Clip deleted' });
@@ -93,7 +97,44 @@ export default function Editor() {
     setSelectedClip(null);
     toast({ title: 'Clip split', description: `${clipToSplit.name} was split into two parts.`});
   };
+
+  const handleAddText = () => {
+    const newClip: Clip = {
+      id: `text-${Date.now()}`,
+      type: 'text',
+      name: 'New Text',
+      start: playhead,
+      duration: 5,
+      track: 'video', // Text clips go on the video track for overlay
+      text: 'Your Text Here',
+      fontSize: 48,
+      color: '#FFFFFF',
+      fontFamily: 'Inter, sans-serif'
+    };
+    handleAddClip(newClip);
+    setSelectedClip(newClip);
+    setActiveTool('select'); // Switch back to select tool
+  }
   
+  const renderPanelContent = () => {
+    switch(activeTool) {
+      case 'ai':
+        return <AiTools onAddClip={handleAddClip} />;
+      case 'upload':
+        return <UploadPanel onAddClip={handleAddClip} />
+      case 'select':
+      default:
+        return <PropertiesPanel selectedClip={selectedClip} onUpdateClip={handleUpdateClip} onDeleteClip={handleDeleteClip} />;
+    }
+  };
+
+  const ToolButton = ({ tool, icon, label }: {tool: Tool, icon: React.ReactNode, label: string}) => (
+    <Button variant="ghost" className={`flex flex-col h-auto p-2 gap-1 ${activeTool === tool ? 'text-primary' : ''}`} onClick={() => setActiveTool(tool)}>
+      {icon}
+      <span className="text-xs">{label}</span>
+    </Button>
+  );
+
   return (
     <div className="flex h-screen w-full flex-col bg-background text-foreground">
       <Header clips={clips}/>
@@ -101,10 +142,22 @@ export default function Editor() {
         <div className="flex-1 flex items-center justify-center bg-black p-4">
             <Preview clips={clips} playhead={playhead} />
         </div>
-        <div className="bg-secondary/20 border-t">
-          {/* This will be the bottom toolbar area */}
+        <div className="w-full bg-card border-t p-2">
+            <ScrollArea>
+                <div className="flex flex-row items-center gap-2">
+                    <ToolButton tool="ai" icon={<Wand2 />} label="AI Tools" />
+                    <ToolButton tool="text" icon={<Text />} label="Text" />
+                    <ToolButton tool="split" icon={<Scissors />} label="Split" />
+                     <Button variant="ghost" className="flex flex-col h-auto p-2 gap-1" onClick={() => handleDeleteClip()}>
+                        <Trash2 />
+                        <span className="text-xs">Delete</span>
+                    </Button>
+                </div>
+                <ScrollBar orientation="horizontal" />
+            </ScrollArea>
         </div>
-        <Timeline
+      </main>
+      <Timeline
             clips={clips}
             selectedClip={selectedClip}
             onSelectClip={handleSelectClip}
@@ -113,7 +166,6 @@ export default function Editor() {
             onUpdateClip={handleUpdateClip}
             onAddClip={handleAddClip}
         />
-      </main>
     </div>
   );
 }
