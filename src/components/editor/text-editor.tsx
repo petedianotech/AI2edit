@@ -3,11 +3,12 @@ import { useState, useEffect } from 'react';
 import type { Clip } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { X, Check, Type, Palette, CaseSensitive, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+import { X, Check, Type, Palette, CaseSensitive, AlignLeft, AlignCenter, AlignRight, Pipette } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ColorPicker from './color-picker';
 import { Slider } from '../ui/slider';
 import { Label } from '../ui/label';
+import { Switch } from '../ui/switch';
 
 const fontFamilies = [
     { name: 'Inter', value: 'Inter, sans-serif' },
@@ -29,6 +30,18 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
     useEffect(() => {
         // Store the initial state of the clip when the editor opens
         setOriginalClip(clip);
+        
+        // Initialize shadow if it doesn't exist
+        if (clip.type === 'text' && !clip.textShadow) {
+            handleUpdate({
+                textShadow: {
+                    color: '#000000',
+                    blur: 4,
+                    offsetX: 2,
+                    offsetY: 2,
+                }
+            })
+        }
     }, []); // Empty dependency array ensures this runs only once on mount
 
 
@@ -113,6 +126,73 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
         </div>
     );
 
+    const renderStyleTab = () => {
+        const shadowEnabled = !!clip.textShadow;
+        
+        const handleShadowPropertyChange = (prop: string, value: any) => {
+            handleUpdate({ textShadow: { ...clip.textShadow!, [prop]: value } });
+        };
+        
+        return (
+            <div className="p-4 space-y-6">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="shadow-switch" className="text-sm text-gray-400">Text Shadow</Label>
+                    <Switch
+                        id="shadow-switch"
+                        checked={shadowEnabled}
+                        onCheckedChange={(checked) => handleUpdate({
+                            textShadow: checked ? { color: '#000000', blur: 4, offsetX: 2, offsetY: 2 } : undefined
+                        })}
+                    />
+                </div>
+                {shadowEnabled && clip.textShadow && (
+                    <div className="space-y-4">
+                        <div>
+                            <Label className="text-sm text-gray-400">Shadow Color</Label>
+                             <ColorPicker
+                                selectedColor={clip.textShadow.color}
+                                onColorChange={(color) => handleShadowPropertyChange('color', color)}
+                            />
+                        </div>
+                        <div className="space-y-4">
+                             <Label className="text-sm text-gray-400">Blur</Label>
+                             <div className="flex items-center gap-4">
+                                <Slider
+                                    min={0} max={20} step={1}
+                                    value={[clip.textShadow.blur]}
+                                    onValueChange={(v) => handleShadowPropertyChange('blur', v[0])}
+                                />
+                                <span className="text-sm w-8">{clip.textShadow.blur}</span>
+                             </div>
+                        </div>
+                        <div className="space-y-4">
+                             <Label className="text-sm text-gray-400">Offset X</Label>
+                             <div className="flex items-center gap-4">
+                                <Slider
+                                    min={-20} max={20} step={1}
+                                    value={[clip.textShadow.offsetX]}
+                                    onValueChange={(v) => handleShadowPropertyChange('offsetX', v[0])}
+                                />
+                                <span className="text-sm w-8">{clip.textShadow.offsetX}</span>
+                             </div>
+                        </div>
+                        <div className="space-y-4">
+                             <Label className="text-sm text-gray-400">Offset Y</Label>
+                             <div className="flex items-center gap-4">
+                                <Slider
+                                    min={-20} max={20} step={1}
+                                    value={[clip.textShadow.offsetY]}
+                                    onValueChange={(v) => handleShadowPropertyChange('offsetY', v[0])}
+                                />
+                                <span className="text-sm w-8">{clip.textShadow.offsetY}</span>
+                             </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
     return (
         <div className="h-full flex flex-col">
             <header className="flex items-center justify-between p-2 border-b border-gray-800">
@@ -123,6 +203,7 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
                     <Button variant={activeTab === 'text' ? 'secondary' : 'ghost'} size="icon" onClick={() => setActiveTab('text')}><Palette/></Button>
                     <Button variant={activeTab === 'font' ? 'secondary' : 'ghost'} size="icon" onClick={() => setActiveTab('font')}><Type /></Button>
                     <Button variant={activeTab === 'align' ? 'secondary' : 'ghost'} size="icon" onClick={() => setActiveTab('align')}><AlignLeft /></Button>
+                    <Button variant={activeTab === 'style' ? 'secondary' : 'ghost'} size="icon" onClick={() => setActiveTab('style')}><Pipette /></Button>
                 </div>
                 <Button variant="ghost" size="icon" onClick={handleSave}>
                     <Check />
@@ -135,6 +216,7 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
                         <TabsTrigger value="text">Text</TabsTrigger>
                         <TabsTrigger value="font">Font</TabsTrigger>
                         <TabsTrigger value="align">Alignment</TabsTrigger>
+                        <TabsTrigger value="style">Style</TabsTrigger>
                     </TabsList>
                     <TabsContent value="text" forceMount>
                         {renderTextTab()}
@@ -144,6 +226,9 @@ export default function TextEditor({ clip, onUpdateClip, onClose }: TextEditorPr
                     </TabsContent>
                     <TabsContent value="align" forceMount>
                         {renderAlignmentTab()}
+                    </TabsContent>
+                    <TabsContent value="style" forceMount>
+                        {renderStyleTab()}
                     </TabsContent>
                 </Tabs>
             </div>

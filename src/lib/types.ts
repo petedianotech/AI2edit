@@ -17,4 +17,10 @@ export interface Clip {
   fontFamily?: string;
   textAlign?: 'left' | 'center' | 'right';
   position?: { x: number; y: number };
+  textShadow?: {
+    color: string;
+    blur: number;
+    offsetX: number;
+    offsetY: number;
+  };
 }

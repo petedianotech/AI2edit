@@ -42,6 +42,11 @@ export default function DraggableResizableText({
             },
         });
     };
+    
+    const textShadow = clip.textShadow
+        ? `${clip.textShadow.offsetX}px ${clip.textShadow.offsetY}px ${clip.textShadow.blur}px ${clip.textShadow.color}`
+        : 'none';
+
 
     return (
         <Rnd
@@ -69,7 +74,7 @@ export default function DraggableResizableText({
                     fontSize: `${clip.fontSize}px`,
                     color: clip.color,
                     textAlign: clip.textAlign,
-                    textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
+                    textShadow: textShadow,
                     whiteSpace: 'nowrap'
                 }}
             >
